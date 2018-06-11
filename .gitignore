@@ -1,6 +1,15 @@
 # Compiled class file
 *.class
 
+#NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+#nbdist/
+#nbactions.xml
+#nb-configuration.xml
+
 # Log file
 *.log
 
@@ -13,11 +22,42 @@
 # Package Files #
 *.jar
 *.war
-*.nar
 *.ear
 *.zip
 *.tar.gz
 *.rar
 
+# Latex Files
+## Core latex/pdflatex auxiliary files:
+*.aux
+*.bbl
+*.blg
+*.brf
+*.idx
+*.toc
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.lb
+*.gz
+## Intermediate documents:
+*.dvi
+*.xdv
+*-converted-to.*
+# these rules might exclude image files for figures etc.
+*.ps
+*.eps
+# *.pdf
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+#Dolphin configuration
+*.directory
+*.DS_Store
