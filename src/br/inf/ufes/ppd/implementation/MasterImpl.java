@@ -184,13 +184,12 @@ public class MasterImpl implements Master {
             long indexDivision = INDEX_DIVISION;
             long initialIndex = 0; 
             long finalIndex = indexDivision + (dictionarySize % INDEX_DIVISION);
-            int subAttackID = 0;
             
             System.out.println("AttackNumber: " + attackID);
             
             while(finalIndex != initialIndex){
                 
-                subAttackID = getSubAttackNumber();
+                int subAttackID = getSubAttackNumber();
 
                 synchronized(attackMap){
                     attackMap.put(subAttackID, attackID); //Adding new map subattack -> attack
