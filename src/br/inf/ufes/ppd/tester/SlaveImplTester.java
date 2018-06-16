@@ -1,7 +1,6 @@
 package br.inf.ufes.ppd.tester;
 
 import br.inf.ufes.ppd.Slave;
-import br.inf.ufes.ppd.SlaveManager;
 import java.rmi.RemoteException;
 import java.util.*;
 
@@ -34,15 +33,15 @@ public class SlaveImplTester implements Slave {
      * checkpoint e foundGuess.
      * @see br.inf.ufes.ppd.implementation.SubAttackService
      */
-    @Override
-    public void startSubAttack(byte[] ciphertext, 
-                               byte[] knowntext, 
-                               long initialwordindex, 
-                               long finalwordindex, 
-                               int attackNumber, 
-                               SlaveManager callbackinterface) 
-        throws RemoteException {
-
-        callbackinterface.checkpoint(getUid(), attackNumber, finalwordindex);
-    }         
+//    @Override
+//    public void startSubAttack(byte[] ciphertext, 
+//                               byte[] knowntext, 
+//                               long initialwordindex, 
+//                               long finalwordindex, 
+//                               int attackNumber, 
+//                               SlaveManager callbackinterface) 
+//        throws RemoteException {
+//
+//        callbackinterface.checkpoint(getUid(), attackNumber, finalwordindex);
+//    }         
 }

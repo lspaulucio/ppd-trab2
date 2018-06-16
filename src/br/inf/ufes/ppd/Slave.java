@@ -22,13 +22,13 @@ public interface Slave extends Remote {
      * checkpoint e foundGuess
      * @throws java.rmi.RemoteException
      */
-    public void startSubAttack(
-                    byte[] ciphertext,
-                    byte[] knowntext,
-                    long initialwordindex,
-                    long finalwordindex,
-                    int attackNumber,
-                    SlaveManager callbackinterface)
-    throws java.rmi.RemoteException;
+//    public void startSubAttack(
+//                    byte[] ciphertext,
+//                    byte[] knowntext,
+//                    long initialwordindex,
+//                    long finalwordindex,
+//                    int attackNumber,
+//                    SlaveManager callbackinterface)
+//    throws java.rmi.RemoteException;
 
 }

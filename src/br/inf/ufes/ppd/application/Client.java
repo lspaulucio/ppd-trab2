@@ -33,6 +33,8 @@ public class Client {
                 throw new Exception("Usage: Client <filename> <knowtext> [<randomVectorLength> : optional]");
             }
             
+            String DICTIONARY_PATH = (args.length < 4) ? Configurations.DICTIONARY_PATH : args[3];
+            
             Random rand = new Random();
             String filename = args[0];
             byte[] knownText = new String(args[1]).getBytes();
@@ -42,7 +44,7 @@ public class Client {
             
             //If file doesn't exist, generate a random bytes vector
             if(encryptedText == null){
-                keys = FileTools.readDictionary(Configurations.DICTIONARY_PATH);
+                keys = FileTools.readDictionary(DICTIONARY_PATH);
                 int key = rand.nextInt(Configurations.DICTIONARY_SIZE);
                 int length = (args.length < 3) ? (rand.nextInt(100000 -1000 + 1) + 1000) : new Integer(args[2]);
                 

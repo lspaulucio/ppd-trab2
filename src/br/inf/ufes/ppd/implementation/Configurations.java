@@ -8,7 +8,7 @@ package br.inf.ufes.ppd.implementation;
 public class Configurations {
     
     //Registry configurations
-    public static final String REGISTRY_ADDRESS = "192.168.1.4";
+    public static final String REGISTRY_ADDRESS = "192.168.0.18";
     public static final String REGISTRY_MASTER_NAME = "mestre";
     
     //Directories 

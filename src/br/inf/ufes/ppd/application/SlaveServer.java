@@ -1,16 +1,13 @@
 package br.inf.ufes.ppd.application;
 
-import br.inf.ufes.ppd.Master;
-import br.inf.ufes.ppd.Slave;
 import br.inf.ufes.ppd.implementation.Configurations;
 import br.inf.ufes.ppd.implementation.SlaveImpl;
-import br.inf.ufes.ppd.implementation.RebindService;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.Timer;
+import com.sun.messaging.ConnectionConfiguration;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.jms.Queue;
+import javax.jms.*;
 
 /** Slave Application
  *
@@ -28,6 +25,7 @@ public class SlaveServer {
         String DICTIONARY_PATH = (args.length < 1) ? Configurations.DICTIONARY_PATH : args[0];
         String SLAVE_NAME = (args.length < 2) ? "SlaveLeonardo" : args[1];
         String REGISTRY_ADDRESS = (args.length < 3) ? Configurations.REGISTRY_ADDRESS : args[2];
+        String host = (args.length < 4) ? "127.0.0.1" : args[3];
 
 //        System.out.println(SLAVE_NAME);
 
@@ -35,26 +33,47 @@ public class SlaveServer {
         SlaveImpl slave = new SlaveImpl();
         slave.readDictionary(DICTIONARY_PATH);
         slave.setUid(UUID.randomUUID());
+        slave.setSlaveName(SLAVE_NAME);
  
-        try {
-            Registry registry = LocateRegistry.getRegistry(REGISTRY_ADDRESS);
-            Master m = (Master) registry.lookup(Configurations.REGISTRY_MASTER_NAME);
+        //JMS
+        try{
+            Logger.getLogger("").setLevel(Level.SEVERE);
+
+            System.out.println("Obtaining connection factory...");
+
+            com.sun.messaging.ConnectionFactory connectionFactory = new com.sun.messaging.ConnectionFactory();
+            connectionFactory.setProperty(ConnectionConfiguration.imqAddressList, host+":7676");	
+
+            System.out.println("Obtained connection factory.");
+
+            System.out.println("Obtaining queues...");
             
-            Slave slaveRef = (Slave) UnicastRemoteObject.exportObject(slave,0);
+            Queue subAttackQueue = (Queue) new com.sun.messaging.Queue("SubAttacksQueue");
+            Queue guessesQueue = (Queue) new com.sun.messaging.Queue("GuessesQueue");
             
-            //Creating rebind service
-            Timer timer = new Timer();   
-            RebindService rs = new RebindService(m, slaveRef, SLAVE_NAME, slave.getUid(), REGISTRY_ADDRESS);            
-            timer.scheduleAtFixedRate(rs, 0, Configurations.REBIND_TIME);  // 0 = delay, REBIND_TIME = frequence
+            System.out.println("Obtained queues.");			
+
+            JMSContext context = connectionFactory.createContext();
+
+            slave.setContext(context);
+            slave.setProducer(context.createProducer()); 
+            slave.setGuessesQueue(guessesQueue);
+            slave.setSubAttacksQueue(subAttackQueue);
+            slave.setProducer(context.createProducer()); 
+            slave.setConsumer(context.createConsumer((Destination) subAttackQueue)); 
             
-            System.out.println("Slave: " + SLAVE_NAME + " ready");
+            System.out.println("Slave ready!");
+            
+            while(true){
+                slave.getJob();
+            }
             
         }
-        catch(RemoteException e) {
-            System.err.println("Slave exception:\n" + e.getMessage());
+        catch(JMSException e){
+            System.err.println("Error");
         }
-        catch(Exception p){
-            System.err.println("Slave exception:\n" + p.getMessage());
-        }
+        
+        
+        
     }
 }
