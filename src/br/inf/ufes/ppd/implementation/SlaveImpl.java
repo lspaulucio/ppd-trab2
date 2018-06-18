@@ -127,7 +127,7 @@ public class SlaveImpl implements Slave {
                     
                     producer.send((Destination) guessesQueue, guessMessage);
                     
-                    System.out.println("SubAttack: " + attackNumber + "- Key found: " + actualKey);
+                    System.out.println("SubAttack: " + attackNumber + " - Key found: " + actualKey);
                 }
 
             } catch (javax.crypto.BadPaddingException e) {
