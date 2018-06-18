@@ -108,7 +108,7 @@ public class SlaveImpl implements Slave {
         byte[] ciphertext = job.getCypherText();
         byte[] knowntext = job.getKnowText();        
         
-        System.out.println("New SubAttack: " + attackNumber);
+        System.out.println("SubAttack: " + attackNumber);
 
         //Subattack execution
         for (; currentIndex <= finalIndex; currentIndex++) {
@@ -121,48 +121,35 @@ public class SlaveImpl implements Slave {
                 //Checking if known text exists in decrypted text
                 if (Crypto.contains(knowntext, decrypted)) {
 
-                    Guess currentGuess = new Guess();
-                    currentGuess.setKey(actualKey);
-                    currentGuess.setMessage(decrypted);
+                    Guess currentGuess = new Guess(actualKey, decrypted, slaveName, attackNumber);
 
                     ObjectMessage guessMessage = context.createObjectMessage(currentGuess);
-                    guessMessage.setIntProperty("SubAttackID", attackNumber);
-                    guessMessage.setStringProperty("Discoverer", slaveName);
-                    guessMessage.setBooleanProperty("Done", false);
+                    
                     producer.send((Destination) guessesQueue, guessMessage);
                     
-                    System.out.println("SubAttack: " + attackNumber + " Key found: " + actualKey);
+                    System.out.println("SubAttack: " + attackNumber + "- Key found: " + actualKey);
                 }
 
             } catch (javax.crypto.BadPaddingException e) {
                 // essa excecao e jogada quando a senha esta incorreta
                 // porem nao quer dizer que a senha esta correta se nao jogar essa excecao
                 //System.err.println("Senha " + new String(key) + " invalida.");
-            } catch (JMSException e) {
-                System.err.println("Error subattack service:\n" + e.getMessage());
             }
         }
-        
         //Sending last message for this job
-        try{
-            ObjectMessage guessMessage = context.createObjectMessage();
-            guessMessage.setIntProperty("SubAttackID", attackNumber);
-            guessMessage.setStringProperty("Discoverer", slaveName);
-            guessMessage.setBooleanProperty("Done", true);
-            producer.send((Destination) guessesQueue, guessMessage);
-        }
-        catch(JMSException e){
-            System.err.println("Error");
-        }
+        Guess lastGuess = new Guess(null, null, slaveName, attackNumber);
+        lastGuess.setDone(true);
+        ObjectMessage guessMessage = context.createObjectMessage(lastGuess);
+        producer.send((Destination) guessesQueue, guessMessage);
 
-        System.out.println("End subattack: " + attackNumber);
+        System.out.println("End subattack: " + attackNumber + "\n");
     }
     
     public void getJob(){
 
         Message msg = consumer.receive();
         if(msg instanceof ObjectMessage){
-            System.out.println("New job received");
+            System.out.println("New job received!");
             ObjectMessage obj = (ObjectMessage) msg;
             try{
                 SubAttackJob job = (SubAttackJob) obj.getObject();

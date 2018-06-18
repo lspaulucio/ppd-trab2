@@ -62,7 +62,7 @@ public class SlaveServer {
             slave.setProducer(context.createProducer()); 
             slave.setConsumer(context.createConsumer((Destination) subAttackQueue)); 
             
-            System.out.println("Slave ready!");
+            System.out.println("Slave ready!\n");
             
             while(true){
                 slave.getJob();

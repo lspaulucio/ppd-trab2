@@ -63,7 +63,7 @@ public class MasterServer {
             masterObj.setConsumer(context.createConsumer((Destination) guessesQueue)); 
             masterObj.startGuessTask();
             
-            System.out.println("Master ready!");
+            System.out.println("Master ready!\n");
         } 
         catch (JMSException e) {
             System.err.println("Master JMS exception:\n" + e.getMessage());

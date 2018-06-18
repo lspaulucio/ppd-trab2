@@ -61,7 +61,7 @@ public class Client {
             Registry registry = LocateRegistry.getRegistry(Configurations.REGISTRY_ADDRESS);
             Master m = (Master) registry.lookup(Configurations.REGISTRY_MASTER_NAME); 
             
-            System.out.println("Client started. Sending attack request");
+            System.out.println("Client started. Requesting attack...");
             
             Guess[] guessVector = m.attack(encryptedText, knownText);
             

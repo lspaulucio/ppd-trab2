@@ -33,18 +33,6 @@ public class MasterImpl implements Master {
         attacksList = new HashMap<>();
     }
     
-    public boolean hasAttack(){
-        int numberAttacks = 0;
-        
-        synchronized(attacksList){
-            for (AttackControl attack : attacksList.values()) {
-                if(!attack.isDone())
-                    numberAttacks++;
-            }
-        }
-        return numberAttacks > 0;
-    }
-    
     public synchronized int getAttackNumber(){
         return attackNumber++;
     }
@@ -84,7 +72,7 @@ public class MasterImpl implements Master {
         int attackID = getAttackNumber();
         AttackControl newAttack = new AttackControl(ciphertext, knowntext);
         
-        System.out.println("\nNew attack request");
+        System.out.println("New attack request");
         
         //Creating a guess list for this attack
         synchronized(guessList){
@@ -117,9 +105,7 @@ public class MasterImpl implements Master {
             }
         }
         
-        System.out.println("End attack " + attackID);
-        double elapsedTime = (System.nanoTime() - newAttack.getStartTime())/1000000000;
-        System.out.println("Elapsed Time: " + elapsedTime);
+        System.out.println("\nEnd attack number: " + attackID);
         
         //Return guess vector
         Guess[] guess;
@@ -204,7 +190,6 @@ public class MasterImpl implements Master {
                     SubAttackJob sub = new SubAttackJob(subAttackID, initialIndex, finalIndex, encriptedText, knownText);
                     
                     ObjectMessage objMessage = context.createObjectMessage(sub);
-                    objMessage.setIntProperty("SubAttackID", subAttackID);
                     subAttackProducer.send((Destination) subAttacksQueue, objMessage);
                     
                     System.out.println("SubAttack " + subAttackID + " created. " + 
@@ -261,7 +246,7 @@ public class MasterImpl implements Master {
 
             synchronized(subAttacks){
 
-                for (Boolean subAttackStatus : subAttacks.values()) {
+                for(Boolean subAttackStatus : subAttacks.values()) {
                     finished &= subAttackStatus;
                 }
             }
@@ -300,21 +285,21 @@ public class MasterImpl implements Master {
                 if(msg instanceof ObjectMessage){
 
                     try{
+                        
                         ObjectMessage obj = (ObjectMessage) msg;
+                        Guess newGuess = (Guess) obj.getObject();
 
-                        System.out.println("\nNew message received from " + obj.getStringProperty("Discoverer"));
+                        int subAttackID = newGuess.getSubAttackID();
+                        
+                        System.out.println("\nNew message received from " + newGuess.getDiscoverer());
 
-                        int subAttackID = obj.getIntProperty("SubAttackID");
-
+                        //LIMPA FILA
                         if(attackMap.get(subAttackID) == null)
                             continue;
 
                         int attackID = attackMap.get(subAttackID);
 
-
-                        if(!obj.getBooleanProperty("Done")){
-
-                            Guess newGuess = (Guess) obj.getObject();
+                        if(!newGuess.isDone()){
 
                             System.out.println("Guess message. Key founded: " + newGuess.getKey());
 
@@ -327,7 +312,6 @@ public class MasterImpl implements Master {
                         else{
                             synchronized(attacksList){
                                 attacksList.get(attackID).getSubAttacks().put(subAttackID, true);
-                                attacksList.get(attackID).isDone();
                             }
                             
                             AttackControl attack = attacksList.get(attackID);
