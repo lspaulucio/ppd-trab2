@@ -298,15 +298,25 @@
 % Introdução
 % ----------------------------------------------------------
 \chapter{Introdução} 
-Nas últimas décadas houve uma crescente demanda na área de processamento de dados, o que exigiu o desenvolvimento de máquinas
-mais poderosas. Apesar da grande capacidade existente nos novos computadores, principalmente ao se analisar as capacidades de processamento e memória, nota-se uma exorbitante diferença quando comparados as primeiras máquinas produzidas e até mesmo a máquinas de uma década atrás. Porém, mesmo com esses grandes avanços eles ainda não são capazes de atender a determinadas demandas de processamento sozinhos. Por esse motivo foram desenvolvidas várias técnicas de programação concorrente e distribuída o que contribuiu para o surgimento dos Sistemas Distribuídos.
 
-Em um sistema distribuído os componentes de \textit{hardware} ou \textit{software} de diferentes equipamentos se localizam em regiões físicas diferentes mas estão interligados em rede de forma que se comunicam e coordenam suas ações entre sí a fim de
-atingir um objetivo em comum. Atualmente, esses sistemas são utilizados em \textit{Render farms} - para renderização de vídeos
-e jogos - servidores WEB, serviços de resolução de nomes(DNS), entre várias outras aplicações.
+Com o crescente desenvolvimento dos sistemas distribuídos nos últimos tempos surgiu a necessidade de serviços que independem uma padronização na forma como os recursos das aplicações de \textit{software} estejam disponíveis na rede. Visto que, atualmente, existe uma grande variedade de tecnologias de desenvolvimento que permitem a interoperabilidade entre diferentes sistemas na rede.
 
-Esse trabalho tem por objetivo praticar programação paralela e distribuída usando o \textit{middleware} JavaJMS além de 
-realizar análises de desempenho em um cluster de computadores. Ele consistirá na implementação de uma arquitetura mestre/escravo para realizar um ataque de dicionário em uma mensagem criptografada.
+Essencialmente, o Web Service faz com que os recursos da aplicação do 
+software estejam disponíveis sobre a rede de uma forma padronizada. Outras 
+tecnologias fazem a mesma coisa, como por exemplo, os browsers da Internet 
+acessam às páginas Web disponíveis usando as tecnologias da Internet, HTTP 
+e HTML. No entanto, estas tecnologias não são bem sucedidas na 
+comunicação e integração de aplicações. Utilizando a tecnologia Web Service, 
+uma aplicação pode invocar outra para efetuar tarefas simples ou complexas 
+mesmo que as duas aplicações estejam em diferentes sistemas e escritas em 
+linguagens diferentes. Por outras palavras, os Web Services fazem com que os 
+seus recursos estejam disponíveis para que qualquer aplicação cliente possa 
+operar e extrair os recursos fornecidos pelo Web Service
+
+Web Service é uma solução utilizada na integração de sistemas e na comunicação entre aplicações diferentes. Com esta tecnologia é possível que novas aplicações possam interagir com aquelas que já existem e que sistemas desenvolvidos em plataformas diferentes sejam compatíveis. Os Web Services são componentes que permitem às aplicações enviar e receber dados. Cada aplicação pode ter a sua própria "linguagem", que é traduzida para uma linguagem universal, um formato intermediário como XML, Json, CSV, etc.
+
+Esse trabalho tem por objetivo praticar programação paralela e distribuída usando a API Java JMS, além de 
+realizar análises de desempenho em um cluster de computadores. Ele consistirá na implementação de uma arquitetura mestre/escravo para realizar um ataque de dicionário em uma mensagem criptografada utilizando troca de mensagens.
 
 
 \chapter{Implementação} 
@@ -334,7 +344,7 @@ do código e das implementações de cada elemento. O trabalho é composto dos s
 
 \end{itemize}
 
-Para o correto funcionamento das aplicações desenvolvidas no trabalho sempre é necessário adicionar a seguinte diretiva ao comando de inicialização de cada elemento.
+Para o correto funcionamento das aplicações desenvolvidas no trabalho sempre é necessário adicionar a seguinte diretiva ao comando de inicialização do mestre e do cliente.
 
 \begin{center}
 	\begin{lstlisting}
@@ -343,7 +353,7 @@ Para o correto funcionamento das aplicações desenvolvidas no trabalho sempre �
 
 Essa diretiva é necessária para que o Java RMI possa criar a referência correta ao exportar um objeto remoto. 
 
-Outro comando que deve ser executado antes da inicialização de qualque elemento é o \textit{rmiregistry}. Ele deve ser
+Outro comando que deve ser executado antes da inicialização de qualquer elemento é o \textit{rmiregistry}. Ele deve ser
 executado dentro da pasta raiz onde se encontram as classes, no caso do NetBeans essa pasta é "build/classes/".
 Nessa pasta se encontra a pasta raiz do pacote do trabalho, nesse caso a pasta "br".
 
@@ -351,7 +361,7 @@ Nessa pasta se encontra a pasta raiz do pacote do trabalho, nesse caso a pasta "
 
 O programa cliente recebe como argumentos: o nome do arquivo criptografado, o trecho conhecido do texto original e opcionalmente um terceiro parâmetro que indica o tamanho do vetor de \textit{bytes} aleatório que será gerado em caso do arquivo criptografado não existir.
 
-Assim, o cliente é responsável por localizar o mestre utilizando o \textit{Registry} e solicitar o serviço de ataque através do método \textit{attack}. Ao solicitar o serviço o cliente passa o arquivo criptografado e o trecho conhecido. Caso o nome do arquivo fornecido como argumento para o programa cliente seja inválido ele fica responsável por gerar um vetor aleatório de bytes, cujo tamanho será igual ao 3º parâmetro fornecido ou, caso esse não exista, um tamanho aleatório na faixa de 1Kb a 100Kb.
+Assim, o cliente é responsável por localizar o mestre utilizando o \textit{Registry} e solicitar o serviço de ataque através do método \textit{attack}. Ao solicitar o serviço o cliente passa o arquivo criptografado e o trecho conhecido. Caso o nome do arquivo fornecido como argumento para o programa cliente seja inválido ele fica responsável por gerar um vetor aleatório de bytes, cujo tamanho será igual ao 3º parâmetro fornecido ou, caso esse não exista, será usado um tamanho aleatório na faixa de 1Kb a 100Kb.
 
 O comando utilizado para iniciar o cliente é:
 
@@ -360,31 +370,29 @@ java br.inf.ufes.ppd.application.Client <Arquivo> <Trecho> [<Tam. vetor bytes>]\
 
 
 \section{Escravo}
-O escravo recebe como parâmetros: o caminho para o arquivo de dicionário, o nome do escravo que será criado e endereço do \textit{registry}. Caso alguns desses parâmetros não sejam fornecidos ele pega seus valores padrões existentes em um arquivo de configurações.
+O escravo recebe como parâmetros: o caminho para o arquivo de dicionário, o nome do escravo que será criado e endereço do \textit{host} onde está rodando o \textit{Glassfish}. Caso alguns desses parâmetros não sejam fornecidos ele pega seus valores padrões existentes em um arquivo de configurações.
 
-Inicialmente, o escravo deve procurar no \textit{registry} uma referência para o mestre, e assim que ele conseguir ele solicita ao mestre para ser adicionado através do serviço de \textit{addSlave} fornecido pelo mestre. Após estar registrado
-no mestre o escravo fica aguardando alguma solicitação de subataque do mestre. 
+Inicialmente, o escravo se conecta ao \textit{Glassfish} que está rodando no \textit{host} especificado para obter a \textit{Connection Factory} e as filas onde serão colocadas os subataques e os \textit{guesses}. Após terminar essas tarefas de inicialização o escravo fica esperando algum subataque ser adicionado na fila para que possa iniciar o processamento. Durante o processamento caso algum \textit{Guess} seja encontrado o escravo adiciona-o na fila de \textit{Guesses} para que o mestre possa processar e montar a resposta que será enviada ao cliente.
 
 O comando para se iniciar um escravo é:
 
 \begin{lstlisting}
-java br.inf.ufes.ppd.application.SlaveServer <dicionario> <nome> <registry>\end{lstlisting}
+java br.inf.ufes.ppd.application.SlaveServer <dicionario> <nome> <host>\end{lstlisting}
 
 
 \section{Mestre}
 
-O mestre recebe como parâmetro o endereço do \textit{registry}, caso ele não seja fornecido é utilizado o endereço padrão
-que existe no arquivo de configurações.
+O mestre recebe como parâmetro o endereço do \textit{registry} e do \textit{host}, caso eles não sejam fornecidos são utilizados os valores padrões existentes no arquivo de configurações.
 
 O mestre é a aplicação que fornece o serviço de \textit{attack} para um cliente. Quando esse serviço é solicitado
-ele delega subataques para os escravos que estão registrados nele. Assim, quando todos os escravos terminam seu trabalho o 
-mestre envia a resposta para o cliente com os possíveis resultados encontrados durante os subataques.
+ele cria vários subataques e adiciona-os na respectiva fila para que os escravos possam pegar a tarefa para executar.
+O mestre fica sempre monitorando a fila de \textit{Guesses} para processar os resultados obtidos pelos escravos de forma que seja possível montar a resposta ao final do ataque para o cliente.
+Quando todos os subataques são finalizados pelos escravos o mestre envia a resposta para o cliente com os possíveis resultados encontrados durante os subataques.
 
 O comando para se iniciar um escravo é:
 
 \begin{lstlisting}
-java br.inf.ufes.ppd.application.MasterServer <registry>\end{lstlisting}
-
+java br.inf.ufes.ppd.application.MasterServer <registry> <host>\end{lstlisting}
 
 Nas próxima seções serão discutidos os principais pontos da estrutura de dados utilizada no trabalho, decisões de projeto e 
 problemas que ocorreram durante a implementação.
@@ -405,17 +413,11 @@ Sendo assim, para a implementação do mestre foram criadas as seguintes estrutu
 
 \begin{itemize}
 
-	\item \textbf{SubAttackControl:} Essa estrutura armazena todas as informações de controle de um subataque: uma variável 
-	que diz se o ataque já terminou, o índice final do subataque e o último índice já verificado pelo escravo, através do
-	\textit{checkpoint}.
-	
 	\item \textbf{AttackControl:} Essa estrutura é responsável por possuir as informações de um ataque solicitado por um
 	cliente. Ele possui: a informação do tempo em que o ataque começou, possui uma variável que diz se o ataque está 
-	terminado, uma referência para a mensagem criptografada e para o trecho conhecido daquele ataque e por fim uma lista 
-	de subataques, que fazem parte daquele ataque.
-	
-	\item \textbf{SlaveControl:} Essa estrutura armazena as informações de cada escravo: nome, tempo do último checkpoint
-	recebido e a lista de subataques que aquele escravo foi encarregado de executar.
+	terminado, uma referência para a mensagem criptografada e para o trecho conhecido daquele ataque e por fim uma 
+	\textit{HashMap} com os respectivos subataques e o \textit{status} de cada um, indicando se o subataque já terminou ou 
+	não.
 	
 \end{itemize}
 
@@ -424,9 +426,6 @@ Essas \textit{HashMaps} são as seguintes:
 
 \begin{itemize}
 
-	\item \textbf{HashMap de UUID em Escravos:} Esse mapeamento permite que dado uma UUID de um escravo o mestre consiga 
-	obter o \textit{SlaveControl} daquele escravo.
-	
 	\item \textbf{HashMap de AtaqueID em Lista de \textit{Guess}:} Esse mapeamento permite que dado um número de ataque o
 	mestre obtenha a lista de \textit{guess} desse ataque.
 	
@@ -450,7 +449,6 @@ Por fim, uma outra ferramenta utilizada na implementação do mestre é o \texti
 a uma determinada variável seja serializado. Essa ferramenta é de extrema importância para o mestre, visto que ele pode
 receber várias solicitações de ataque em paralelo, e o acesso a algumas estruturas se não forem serializados podem gerar
 exceção de acesso concorrente.
-
 
 \section{Decisões de Projeto}
 Durante a implementação do projeto algumas decisões tiveram que ser tomadas, elas serão discutidas a seguir.

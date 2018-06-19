@@ -24,9 +24,9 @@ public class MasterServer {
     public static void main(String[] args) {
         
         //args[0] Registry address
+        //args[1] host
         
         String REGISTRY_ADDRESS = (args.length < 1) ? Configurations.REGISTRY_ADDRESS : args[0]; 
-        
         String host = (args.length < 2) ? "127.0.0.1" : args[1];
         
         try {

@@ -20,12 +20,11 @@ public class SlaveServer {
                     
         //args[0] Dictionary file path
         //args[1] Slave name
-        //args[2] Registry address
+        //args[2] Host address
         
         String DICTIONARY_PATH = (args.length < 1) ? Configurations.DICTIONARY_PATH : args[0];
         String SLAVE_NAME = (args.length < 2) ? "SlaveLeonardo" : args[1];
-        String REGISTRY_ADDRESS = (args.length < 3) ? Configurations.REGISTRY_ADDRESS : args[2];
-        String host = (args.length < 4) ? "127.0.0.1" : args[3];
+        String host = (args.length < 3) ? "127.0.0.1" : args[2];
 
 //        System.out.println(SLAVE_NAME);
 
@@ -67,13 +66,9 @@ public class SlaveServer {
             while(true){
                 slave.getJob();
             }
-            
         }
         catch(JMSException e){
-            System.err.println("Error");
+            System.err.println("JMS Error \n " + e.getMessage());
         }
-        
-        
-        
     }
 }

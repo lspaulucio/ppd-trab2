@@ -113,8 +113,18 @@ public class MasterImpl implements Master {
         synchronized(guessList)
         {
             guess = getGuessVector(guessList.get(attackID));
+            
+            guessList.remove(attackID);  //Removing guess from list
+        }
+
+        //removing subattack mapping from current attack
+        synchronized(attackMap){
+            for (Integer subAttackID : attacksList.get(attackID).getSubAttacks().keySet()) {
+                attackMap.remove(subAttackID);
+            }
         }
         
+        //removing current attack control
         synchronized(attacksList){
             attacksList.remove(attackID);
         }
@@ -290,14 +300,15 @@ public class MasterImpl implements Master {
                         Guess newGuess = (Guess) obj.getObject();
 
                         int subAttackID = newGuess.getSubAttackID();
+                        int attackID = attackMap.get(subAttackID);
                         
                         System.out.println("\nNew message received from " + newGuess.getDiscoverer());
-
+                        System.out.println("Attack: " + attackID);
+                        
                         //LIMPA FILA
                         if(attackMap.get(subAttackID) == null)
                             continue;
-
-                        int attackID = attackMap.get(subAttackID);
+                        
 
                         if(!newGuess.isDone()){
 
