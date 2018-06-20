@@ -42,7 +42,7 @@ public class SlaveServer {
 
             com.sun.messaging.ConnectionFactory connectionFactory = new com.sun.messaging.ConnectionFactory();
             connectionFactory.setProperty(ConnectionConfiguration.imqAddressList, host+":7676");	
-
+            connectionFactory.setProperty(ConnectionConfiguration.imqConsumerFlowLimitPrefetch, "false");
             System.out.println("Obtained connection factory.");
 
             System.out.println("Obtaining queues...");
