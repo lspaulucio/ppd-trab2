@@ -300,11 +300,12 @@ public class MasterImpl implements Master {
                         Guess newGuess = (Guess) obj.getObject();
 
                         int subAttackID = newGuess.getSubAttackID();
-                        int attackID = attackMap.get(subAttackID);
                         
                         //LIMPA FILA
                         if(attackMap.get(subAttackID) == null)
                             continue;
+                        
+                        int attackID = attackMap.get(subAttackID);
                         
                         System.out.println("\nNew message received from " + newGuess.getDiscoverer());
                         System.out.println("Attack: " + attackID);
