@@ -284,36 +284,20 @@
 % ----------------------------------------------------------
 \textual
 
-
-% MONTELLA. MAURA. Micro e Macroeconomia: Uma Abordagem Conceitual e Prática. Edição nº 01 - Editora Atlas, São Paulo – SP, 2009.
-
-% MANKIW, N. Gregory. Princípios da Microeconomia. Tradução Edição n.º 03 Norte-Americana – Editora Pioneira Thomson Learning, 2005.
-
-% BEGG. David K. H. Introdução à Microeconomia. Edição n.º 02 – Editora Campus, Rio de Janeiro, Elsevier, 2003.
-
-% VARIAN. Hal R, Microeconomia: Princípios Básicos. Edição n.º 06 – Editora Campus, São Paulo-SP, 2002.
-
-
 % ----------------------------------------------------------
 % Introdução
 % ----------------------------------------------------------
 \chapter{Introdução} 
 
-Com o crescente desenvolvimento dos sistemas distribuídos nos últimos tempos surgiu a necessidade de serviços que independem uma padronização na forma como os recursos das aplicações de \textit{software} estejam disponíveis na rede. Visto que, atualmente, existe uma grande variedade de tecnologias de desenvolvimento que permitem a interoperabilidade entre diferentes sistemas na rede.
+Com o crescente desenvolvimento dos sistemas distribuídos nos últimos tempos surgiu a necessidade de serviços que independem de um acoplamento direto entre remetente e destinatário. Para que essa comunicação ocorra se faz necessário o uso de um intermediário, através dele é possível se obter duas características importantes: desacoplamento do espacial e desacoplamento do temporal.
 
-Essencialmente, o Web Service faz com que os recursos da aplicação do 
-software estejam disponíveis sobre a rede de uma forma padronizada. Outras 
-tecnologias fazem a mesma coisa, como por exemplo, os browsers da Internet 
-acessam às páginas Web disponíveis usando as tecnologias da Internet, HTTP 
-e HTML. No entanto, estas tecnologias não são bem sucedidas na 
-comunicação e integração de aplicações. Utilizando a tecnologia Web Service, 
-uma aplicação pode invocar outra para efetuar tarefas simples ou complexas 
-mesmo que as duas aplicações estejam em diferentes sistemas e escritas em 
-linguagens diferentes. Por outras palavras, os Web Services fazem com que os 
-seus recursos estejam disponíveis para que qualquer aplicação cliente possa 
-operar e extrair os recursos fornecidos pelo Web Service
+O desacoplamento espacial permite que as entidades remetentes e destinatárias não precisam se conhecer. Isso permite que os desenvolvedores possam usar a tecnologia de desenvolvimento que acharem melhor. Como hoje existe uma gama enorme de ferramentas, essa propriedade fornece ao desenvolvedor um grau de liberdade imenso.
 
-Web Service é uma solução utilizada na integração de sistemas e na comunicação entre aplicações diferentes. Com esta tecnologia é possível que novas aplicações possam interagir com aquelas que já existem e que sistemas desenvolvidos em plataformas diferentes sejam compatíveis. Os Web Services são componentes que permitem às aplicações enviar e receber dados. Cada aplicação pode ter a sua própria "linguagem", que é traduzida para uma linguagem universal, um formato intermediário como XML, Json, CSV, etc.
+Já o desacoplamento temporal permite que as entidades possam ter tempos de vida independentes umas das outras, isso garante que elas não precisam estar ativas ao mesmo tempo para poderem realizar a troca de mensagens.
+
+Todas essas características tornam a comunicação indireta uma ferramenta muito usada em ambientes móveis/WEB e ambientes voltados a ocorrência de eventos. Como exemplo, pode se citar os \textit{Web Services}.
+
+Os \textit{Web Services} permitem uma integração de sistemas e na troca de informações entre diferentes aplicações, permitindo que sistemas criados em plataformas totalmente diferentes sejam compatíveis. Para isso, a aplicação usa uma linguagem universal para se comunicar através de um intermediário, atualmente pode se citar o XML, JSON, CSV e etc.
 
 Esse trabalho tem por objetivo praticar programação paralela e distribuída usando a API Java JMS, além de 
 realizar análises de desempenho em um cluster de computadores. Ele consistirá na implementação de uma arquitetura mestre/escravo para realizar um ataque de dicionário em uma mensagem criptografada utilizando troca de mensagens.
@@ -325,15 +309,14 @@ do código e das implementações de cada elemento. O trabalho é composto dos s
 
 \begin{itemize}
 
-	\item \textbf{br.inf.ufes.ppd:} Nesse pacote estão as interfaces padrões com os serviços oferecidos pelo escravo,
-	cliente e mestre.
+	\item \textbf{br.inf.ufes.ppd:} Nesse pacote estão as interfaces padrões com os serviços oferecidos pelo mestre,
+	a classe \textit{Guess} e a classe \textit{SubAttackJob}.
 	
-	\item \textbf{br.inf.ufes.ppd.application:} Nesse pacote estão as aplicações que oferecerão os serviços indicados nas  
-	interfaces. Estão nesse pacote as aplicações de Cliente, Escravo, Mestre e a aplicação que realiza o serviço de forma
-	centralizada.
+	\item \textbf{br.inf.ufes.ppd.application:} Nesse pacote estão as aplicações propriamente ditas. Estão nesse pacote as
+	aplicações de Cliente, Escravo e Mestre.
 
-	\item \textbf{br.inf.ufes.ppd.implementation:} Nesse pacote se encontram as implementações dos serviços que são 
-	fornecidos pelas aplicações do pacote anterior.
+	\item \textbf{br.inf.ufes.ppd.implementation:} Nesse pacote se encontram as implementações das interfaces e das 
+	funcionalidades do mestre e escravo. 
 	
 	\item \textbf{br.inf.ufes.ppd.tester:} No pacote \textit{tester} estão as aplicações criadas para obtenção automatizada
 	das 	métricas de desempenho que foram utilizadas para a análise efetuada ao final do trabalho.
@@ -344,11 +327,12 @@ do código e das implementações de cada elemento. O trabalho é composto dos s
 
 \end{itemize}
 
-Para o correto funcionamento das aplicações desenvolvidas no trabalho sempre é necessário adicionar a seguinte diretiva ao comando de inicialização do mestre e do cliente.
+Para o correto funcionamento da aplicação mestre, desenvolvida nesse trabalho, sempre é necessário adicionar a seguinte diretiva ao comando de inicialização do mesmo.
 
 \begin{center}
 	\begin{lstlisting}
-		-Djava.rmi.server.hostname=(IP DA MAQUINA HOST)\end{lstlisting}
+		-Djava.rmi.server.hostname=(IP DA MAQUINA HOST)
+	\end{lstlisting}
 \end{center}
 
 Essa diretiva é necessária para que o Java RMI possa criar a referência correta ao exportar um objeto remoto. 
@@ -359,57 +343,72 @@ Nessa pasta se encontra a pasta raiz do pacote do trabalho, nesse caso a pasta "
 
 \section{Cliente}
 
-O programa cliente recebe como argumentos: o nome do arquivo criptografado, o trecho conhecido do texto original e opcionalmente um terceiro parâmetro que indica o tamanho do vetor de \textit{bytes} aleatório que será gerado em caso do arquivo criptografado não existir.
+A aplicação cliente é a mesma implementada no 1º trabalho da disciplina e não foi alterada nenhuma parte do código. O programa cliente recebe como argumentos: o nome do arquivo criptografado, o trecho conhecido do texto original, um terceiro parâmetro que indica o tamanho do vetor de \textit{bytes} aleatório que será gerado em caso do arquivo criptografado não existir, e por último o dicionário de chaves.
 
-Assim, o cliente é responsável por localizar o mestre utilizando o \textit{Registry} e solicitar o serviço de ataque através do método \textit{attack}. Ao solicitar o serviço o cliente passa o arquivo criptografado e o trecho conhecido. Caso o nome do arquivo fornecido como argumento para o programa cliente seja inválido ele fica responsável por gerar um vetor aleatório de bytes, cujo tamanho será igual ao 3º parâmetro fornecido ou, caso esse não exista, será usado um tamanho aleatório na faixa de 1Kb a 100Kb.
+Assim, o cliente é responsável por localizar o mestre utilizando o \textit{Registry}(utilizando a funcionalidade de \textit{lookup}) e solicitar o serviço de ataque através do método \textit{attack}. Ao solicitar o serviço o cliente passa o arquivo criptografado e o trecho conhecido ficando bloqueado enquanto aguarda uma resposta do mestre.
+
+Caso o nome do arquivo fornecido como argumento para o programa cliente seja inválido ele fica responsável por gerar um vetor aleatório de bytes, cujo tamanho será igual ao 3º parâmetro fornecido ou, caso esse não exista, será usado um tamanho aleatório na faixa de 1Kb a 100Kb.
 
 O comando utilizado para iniciar o cliente é:
 
 \begin{lstlisting}
-java br.inf.ufes.ppd.application.Client <Arquivo> <Trecho> [<Tam. vetor bytes>]\end{lstlisting}
+	java br.inf.ufes.ppd.application.Client <Arquivo> <Trecho> <Tam.Vetor> <Dicionario>
+\end{lstlisting}
 
 
 \section{Escravo}
-O escravo recebe como parâmetros: o caminho para o arquivo de dicionário, o nome do escravo que será criado e endereço do \textit{host} onde está rodando o \textit{Glassfish}. Caso alguns desses parâmetros não sejam fornecidos ele pega seus valores padrões existentes em um arquivo de configurações.
+O escravo recebe como parâmetros: o caminho para o arquivo de dicionário, o nome do escravo que será criado e endereço do \textit{host} onde está hospedado o \textit{Glassfish}. Caso alguns desses parâmetros não sejam fornecidos ele pega seus valores padrões existentes em um arquivo de configurações.
 
-Inicialmente, o escravo se conecta ao \textit{Glassfish} que está rodando no \textit{host} especificado para obter a \textit{Connection Factory} e as filas onde serão colocadas os subataques e os \textit{guesses}. Após terminar essas tarefas de inicialização o escravo fica esperando algum subataque ser adicionado na fila para que possa iniciar o processamento. Durante o processamento caso algum \textit{Guess} seja encontrado o escravo adiciona-o na fila de \textit{Guesses} para que o mestre possa processar e montar a resposta que será enviada ao cliente.
+Inicialmente, o escravo se conecta ao \textit{Glassfish} que está rodando no \textit{host} especificado para obter uma \textit{Connection Factory}, e assim, as filas onde serão colocadas os subataques e os \textit{guesses}. Após terminar essas tarefas de inicialização o escravo fica ocioso enquanto espera algum subataque ser adicionado na fila para que possa iniciar o processamento. 
+
+Cada escravo realiza apenas um trabalho por vez, ou seja, quando existe um trabalho na fila o escravo o retira para realizar o processamento e somente quando esse trabalho é finalizado ele verifica na fila novamente se existe um novo trabalho para poder executar. Durante o processamento caso algum \textit{Guess} seja encontrado o escravo o adiciona à fila de \textit{Guesses} para que o mestre possa processar e montar a resposta que será enviada ao cliente.
 
 O comando para se iniciar um escravo é:
 
 \begin{lstlisting}
-java br.inf.ufes.ppd.application.SlaveServer <dicionario> <nome> <host>\end{lstlisting}
+	java br.inf.ufes.ppd.application.SlaveServer <Dicionario> <Escravo> <Host>
+\end{lstlisting}
+
+É importante falar que para que a aplicação \textit{SlaveServer} possa ser executada é necessário adicionar o arquivo \textit{<gf-client.jar>} ao \textit{classpath}. Caso esse arquivo já não esteja no diretório local deve se usar a seguinte diretiva na linha de comando(antes do nome da aplicação mostrado acima), para adicioná-lo:
+
+\begin{lstlisting}
+	java -cp .:../../glassfish5/glassfish/lib/gf-client.jar br.inf ...
+\end{lstlisting}
 
 
 \section{Mestre}
 
-O mestre recebe como parâmetro o endereço do \textit{registry} e do \textit{host}, caso eles não sejam fornecidos são utilizados os valores padrões existentes no arquivo de configurações.
+O mestre recebe como parâmetro o endereço do \textit{registry} e do \textit{host} onde está o \textit{Glassfish}, caso eles não sejam fornecidos são utilizados os valores padrões existentes no arquivo de configurações.
 
 O mestre é a aplicação que fornece o serviço de \textit{attack} para um cliente. Quando esse serviço é solicitado
-ele cria vários subataques e adiciona-os na respectiva fila para que os escravos possam pegar a tarefa para executar.
-O mestre fica sempre monitorando a fila de \textit{Guesses} para processar os resultados obtidos pelos escravos de forma que seja possível montar a resposta ao final do ataque para o cliente.
+ele cria vários subataques - o número de subataques depende de uma variável \textit{M} que determina o tamanho do intervalo dos índices de cada trabalho - adicionando os na respectiva fila para que os escravos possam pegar a tarefa para executar.
+O mestre fica sempre monitorando a fila de \textit{Guesses}, através de uma \textit{thread}, para processar os resultados obtidos pelos escravos de forma que seja possível montar a resposta ao final do ataque para o cliente.
 Quando todos os subataques são finalizados pelos escravos o mestre envia a resposta para o cliente com os possíveis resultados encontrados durante os subataques.
 
 O comando para se iniciar um escravo é:
 
 \begin{lstlisting}
-java br.inf.ufes.ppd.application.MasterServer <registry> <host>\end{lstlisting}
+	java br.inf.ufes.ppd.application.MasterServer <registry> <host>
+\end{lstlisting}
+
+Da mesma forma que foi explicado para o escravo anteriormente, é necessário adicionar o arquivo \textit{<gf-client.jar>} ao \textit{classpath} utilizando o comando:
+
+\begin{lstlisting}
+	java -cp .:../../glassfish5/glassfish/lib/gf-client.jar br.inf ...
+\end{lstlisting}
 
 Nas próxima seções serão discutidos os principais pontos da estrutura de dados utilizada no trabalho, decisões de projeto e 
 problemas que ocorreram durante a implementação.
 
 \section{Estrutura de Dados}
 
-Como o cliente é bem simples ele não possui uma estrutura muito complexa já que sua função é, basicamente, localizar um mestre para solicitar o serviço de ataque enviando o arquivo criptografado e o trecho conhecido, e após isso fica bloqueado aguardando uma resposta do mestre. Portanto, sua estrutura não será discutida em detalhes.
+Como o cliente não precisou ser alterado, sua estrutura é a mesma do 1º trabalho. Ela é bem simples e não possui nada muito complexo já que sua função é, basicamente, localizar um mestre para solicitar o serviço de ataque enviando o arquivo criptografado e o trecho conhecido, após isso, fica bloqueado aguardando uma resposta do mestre. Sendo assim, sua estrutura não será discutida em detalhes.
 
-O escravo também não possuí muitas complexidades com relação a estrutura de dados, mas no seu serviço já existe um 
-diferencial que é o uso de \textit{threads}. Basicamente, ao receber uma solicitação de subataque ele cria uma \textit{thread} para executar aquele subataque de forma que se outro ataque for solicitado ele não fica bloqueado atendendo ao primeiro que chegou.
-A única informação que o escravo possui é seu ID de identificação que é único, e uma lista de chaves candidatas, que são lidas de um arquivo de dicionário, e percorrida durante o ataque a fim de verificar se algumas delas produzem um arquivo que possua o trecho conhecido. Outra \textit{thread} é usada no serviço de \textit{rebind} do escravo ao mestre.
+O escravo sofreu alterações com a implementação feita no trabalho anterior. Sua estrutura ficou mais simples, visto que a operação de \textit{checkpoint} e \textit{rebind} não são mais necessárias. A única informação que o escravo possui é seu nome  e uma lista de chaves candidatas, que são lidas de um arquivo de dicionário. Ao pegar um trabalho da fila ele percorre o intervalo de índices indicados na mensagem verificando se alguma dela produz uma mensagem com o trecho conhecido. Caso exista, ele produz um \textit{Guess} e o adiciona a fila de \textit{Guesses} para que o mestre possa pegar.
 
-A maior complexidade do trabalho foi na implementação do mestre. Como ele é o responsável pelo controle dos ataques, 
-da distribuição dos subataques, por responder o cliente, entre outras tarefas, torna-se necessário o uso de uma estrutura 
-de dados mais complexa para a realização de todas essas tarefas.
+Com as alterações exigidas para o mestre, sua implementação também ficou mais simples, já que não se fez necessário realizar o gerenciamento de escravos e recuperação de erros. Basicamente o mestre recebe uma requisição de ataque de um cliente e cria vários \textit{jobs} para esse ataque colocando-os na fila de subataques para que os escravos possam pegar. Quando uma requisição é recebida pelo mestre ele cria uma \textit{thread} para gerar os \textit{jobs}, isso permite que ele possa receber requisições em paralelo.
 
-Sendo assim, para a implementação do mestre foram criadas as seguintes estruturas de dados:
+Para a implementação do mestre foi criada a seguinte estrutura de dados:
 
 \begin{itemize}
 
@@ -437,159 +436,80 @@ Essas \textit{HashMaps} são as seguintes:
 	
 \end{itemize}
 
-Além dessas estruturas, o mestre possui \textit{threads} para o gerenciamento. Uma delas é a \textit{thread} que faz a tarefa
-de monitoramento, que é responsável por verificar se durante um ataque algum escravo está a mais de 20 segundos sem enviar
-algum \textit{checkpoint} ou \textit{foundGuess}, caso esteja esse escravo é removido e seu trabalho é redistribuído entre os
-outros escravos.
-
-Uma outra \textit{thread} é usada na tarefa de ataque, sempre que o mestre recebe uma requisição de ataque ela é criada para 
-a distribuição do serviço entre os escravos. Ela é necessária pois permite que o mestre receba vários ataques em paralelo.
-
-Por fim, uma outra ferramenta utilizada na implementação do mestre é o \textit{synchronized} de Java, que faz com que o acesso
+Uma outra ferramenta utilizada na implementação do mestre é o \textit{synchronized} de Java, que faz com que o acesso
 a uma determinada variável seja serializado. Essa ferramenta é de extrema importância para o mestre, visto que ele pode
 receber várias solicitações de ataque em paralelo, e o acesso a algumas estruturas se não forem serializados podem gerar
 exceção de acesso concorrente.
+
+Para a troca de mensagens entre o mestre-escravo e escravo-mestre foi utilizado o \textit{ObjectMessage}, que permite enviar um objeto em forma de mensagem, desde que esse objeto implemente o \textit{Serializable} de Java, sendo assim, foram criadas duas classes para isso, são elas:
+
+\begin{itemize}
+
+	\item \textbf{SubAttackJob:} Essa estrutura é utilizado na troca de mensagens do mestre para os escravos através da fila.
+	É responsável por possuir as informações de um subataque criado pelo mestre, assim, possui: uma referência para a
+	mensagem criptografada e para o trecho conhecido daquele ataque, o índice inicial e final que deve ser percorrido para
+	aquele subataque, e por fim, o número do subataque.
+		
+	\item \textbf{Guess:} Essa estrutura é responsável pela troca de mensagens do escravo para o mestre.
+	Ela possui a chave candidata, a mensagem decriptografada, o nome do escravo que encontrou a chave, o número do ataque e 
+	uma variável \textit{booleana} que indica se aquele ataque acabou.
+		
+\end{itemize}
 
 \section{Decisões de Projeto}
 Durante a implementação do projeto algumas decisões tiveram que ser tomadas, elas serão discutidas a seguir.
 
 \begin{enumerate}
 
-	\item \textbf{Lista separada de \textit{guess}}: A primeira decisão tomada foi a necessidade de criação de uma lista
-	de \textit{guess}. Essa decisão foi tomada pensando no caso de algum escravo falhar durante o ataque. Inicialmente, cada
-	escravo possuía uma lista de \textit{guesses} encontrados, porém dessa forma ficou muito complicado de se obter todos os 
-	\textit{guesses} encontrados para um ataque. Para fazer isso o mestre tinha que percorrer todos os escravos verificando
-	cada um dos subataques que eles eram responsáveis para montar a resposta para o cliente. Assim, a criação de uma lista
-	separada de \textit{guesses} permitiu que quando um ataque terminasse o mestre apenas precisaria verificar a lista de
-	\textit{guesses} daquele ataque, dessa forma era muito mais rápido e fácil já que o mestre não tinha que se preocupar
-	caso um escravo delegado para aquele ataque tivesse falhado sendo necessário percorrer cada escravo que falhou pegando os
-	\textit{guesses} daquele ataque. Com a criação dessa lista todos os \textit{guesses} encontrados por qualquer escravo
-    são adicionados a lista de \textit{guess} daquele ataque, ficando a cargo do mestre apenas pegar essa lista ao final
-    do ataque.
+	\item \textbf{Lista separada de \textit{guess}}: A decisão de usar uma lista separada para os \textit{guesses} foi 
+	basicamente por já ter sido usada e dado certo no 1º trabalho. Com essa estrutura fica simples o gerenciamento dos 
+	\textit{guesses} obtidos, de forma que fica fácil montar a mensagem que será enviada ao cliente ao término do ataque.
 	
-	\item \textbf{Criação de subataques:} No início da implementação não existia a ideia de subataque, cada ataque recebido
-	pelo mestre obtinha um identificador único que era o mesmo enviado aos escravos, porém no momento que se começou a 
-	implementação da redistribuição de ataques devido a alguma falha de um escravo, percebeu-se que existia um problema de
-	identificar o andamento do ataque de um escravo já que todos enviavam \textit{checkpoints} para um mesmo número 
-	de ataque. Esse problema será discutido novamente na Seção \ref{sec:prob_mestre}.
+	\item \textbf{Criação de subataques:} Da mesma forma que para o item anterior, a criação de subataques foi usada no 1º 	
+	trabalho, e se encaixou perfeitamente nesse segundo trabalho, permitindo uma grande facilidade no gerenciamento dos 
+	subataques criados para um dado ataque. Isso facilitou na forma de verificar se um ataque já tinha terminado, pois 
+	bastava verificar se todos os subataques de um ataque já tinham terminado.
+		
+	\item \textbf{Fim de um Subataque:}  Para determinar o final de um subataque foi usada a mesma classe \textit{Guess}
+	com os atributos vazios, com exceção do número do ataque e a variável \textit{booleana} que representa o fim do ataque 		que era setada para \textit{true}, dessa forma, quando o mestre pegava uma mensagem da fila a primeira coisa que ele faz 
+	ao desempacotar a mensagem é verificar a variável \textit{booleana}, caso seja \textit{false} é um \textit{Guess}, 
+	caso contrário é uma mensagem indicando que o subataque acabou.
 	
-	\item \textbf{Usar uma cópia de escravos para iniciar ataque:} Essa decisão de criar uma cópia de escravos foi baseada
-	na possibilidade de solicitações de \textit{addSlave} por outros escravos durante a chegada de um ataque,
-	visto que nesse serviço é usado o \textit{synchronized} de Java para serialização da operação. Caso não fosse feito 
-	a cópia, seria necessário serializar toda a distribuição do ataque, isso impediria um novo escravo de se registrar no
-	mestre.
-
-	\item \textbf{Checkpoint:} Uma decisão relacionada ao \textit{checkpoint} diz respeito a verificação de um subataque.
-	Suponha que um escravo envie um \textit{checkpoint} com o índice 10 porém essa mensagem demore a chegar devido a lentidão
-	da rede ou por qualquer outra razão, e suponha que o mesmo escravo envie um outro checkpoint com o índice 20 que chega
-	antes do anterior. Assim na estrutura de controle de subataque será salvo o valor 20, mas quando chegar a mensagem
-	atrasada com o índice 10 ela irá sobrepor ao índice mais atual recebido. Pensando nisso, a alteração do índice mais
-	recente na estrutura de controle de subataque verifica se o índice recebido é maior que o que está salvo, caso seja 
-	discarta o índice recebido pois ele está atrasado. Da mesma forma essa ideia foi implementada na hora de alterar o
-	tempo de último contato com algum escravo.	
-
-	\item \textbf{Lista separada de ataques:} No início da implementação cada escravo possuía uma lista de controle de ataques,
-	porém com a implementação da redistribuição, essa ideia acabou se tornando inviável. Surgiu o mesmo problema que ocorreu
-	com a lista de \textit{guess} em cada escravo. Diante disso foi criada uma lista separada de controles de ataques, o que
-	facilitou muito o restante do desenvolvimento do projeto.
-
-	\item \textbf{Se não existir escravos:} Caso o mestre receba uma requisição de ataque e não existam escravos registrados
-	no momento o mestre lança uma \textit{RemoteExceptio} informando que não existem escravos registrados no momento e
-	pede ao cliente para tentar mais tarde. Outro caso que foi tratado é se no momento que se faz a redistribuição dos
-	trabalhos não existirem escravos o mestre não elimina o escravo que falhou, assim sempre durante o monitoramento
-	dos escravos é verificado se já chegou um novo escravo para receber aquele trabalho. Uma ideia que poderia ser usada era
-	o mestre criar um escravo para resolver o problema, porém não deu tempo de implementar.
-	
-	\item \textbf{Redistribuição dos trabalhos:} Em caso de um escravo falhar e deixar um trabalho pendente, esse trabalho é
-	novamente dividido entre os escravos que estão funcionando. Uma ideia que poderia ser melhorada nessa decisão é verificar
-	se o tamanho do trabalho é maior do que um tamanho mínimo, pois caso o trabalho seja pequeno não valerá a pena
-	realizar a redistribuição do trabalho para todos os escravos.
-
 \end{enumerate}
 
 \section{Problemas Durante a Implementação}
-Durante o desenvolvimento do trabalho alguns problemas surgiram fazendo com que fosse necessário realizar algumas mudanças
-na estrutura de dados e na lógica de programação. A maioria deles ocorreu durante o desenvolvimento do mestre, visto que
-é o componente mais complexo do trabalho já que é responsável por gerenciar todos os escravos e ataques que ocorrem, além de 
-atender as requisições que chegam dos cliente. 
+Durante a implementação desse trabalho não foram encontrados muitos problemas. Foi possível aproveitar algumas estruturas que foram usadas no 1º trabalho e também os problemas que surgiram já eram conhecidos pois ocorreram durante a implementação do trabalho anterior.
 
+Um novo problema que ocorreu relacionado ao JMS foi que quando não se tinha nenhum escravo rodando e o mestre recebia uma requisição de um cliente e gerava os respectivos subataques esses ataques ficavam na fila, assim, ao se iniciar uma aplicação de escravo ele conseguia pegar o trabalho da fila, porém ao se iniciar outro escravo o segundo não pegava mais nenhum trabalho. Isso ocorria pois existe uma funcionalidade de \textit{prefetch} do \textit{Glassfish} que adiciona as mensagens a uma "cache" para cada escravo, porém ao se ajustar a configuração \textit{imqConsumerFlowLimitPrefetch} esse problema foi resolvido.
 
-\subsection{Cliente e Escravo}
-O cliente foi o primeiro a ser implementado. Devido a sua simplicidade não foram encontrados problemas durante sua implementação.
+Outro problema que surgiu foi para limpar as filas durante os testes de implementação, pois ao se fechar as aplicações as mensagens continuavam na fila, e ao reiniciar a aplicação do mestre ocorria um erro pois aquele ataque não existia. Para resolver isso foi feito um ajuste no código para limpar a fila antes de iniciar.
 
-Já na implementação do escravo, que também não era muito complicada, um problema ocorreu, apesar de 
-ter sido de fácil solução.
-
-O problema que surgiu foi durante a implementação do método \textit{startSubAttack}. Nos primeiros testes notou-se que os escravos não realizavam outros sub-ataques em paralelo, assim, ao analisar o código percebeu-se que não estavam sendo criadas \textit{threads} no método para realizar o ataque, dessa forma o escravo ficava bloqueado durante a execução de um ataque não atendendo outras requisições que chegavam. Ao se criar \textit{threads} esse problema foi solucionado.
-
-Outro problema que surgiu durante a implementação do escravo foi o modo de verificar se o trecho conhecido existia no arquivo
-descriptografado, podendo assim ser um candidato a ser o arquivo original. Essa verificação estava sendo feita da seguinte
-forma: o array de bytes descriptografado era transformado em uma \textit{String} e a partir dela era usado o método dessa classe chamado \textit{contains}, que verifica se um uma \textit{substring} existe na \textit{string}. Porém ao se converter esse \textit{array} de \textit{bytes} em uma \textit{string} o Java utiliza uma codificação padrão interna que pode não ser a
-mesma do arquivo que foi criptografado fazendo com que várias ou nenhuma chave candidata possam ser encontradas.
-
-\subsection{Mestre}
-\label{sec:prob_mestre}
-O grande problema durante a implementação do mestre foi relacionado a estabelecer uma boa estrutura de dados para que fosse
-possível realizar o gerenciamento dos escravos e ataques. No início do desenvolvimento a estrutura utilizada não possuía a ideia de subataques, isso fez com que surgisse um problema na hora da divisão de serviço entre os escravos. 
-
-Como cada ataque possuía um número único de identificação ao dividir o trabalho entre os escravos eles recebiam esse mesmo número, assim, quando um escravo mandava um \textit{checkpoint}, duas coisas estavam ocorrendo: 
-
-\begin{itemize}
-
-	\item Quando um escravo que recebia a primeira parte do serviço enviava um \textit{checkpoint} ele era armazenado na estrutura de controle do ataque, porém quando um escravo que recebeu um intervalo de índices maior ao enviar o primeiro \textit{checkpoint} já eliminava a informação do primeiro escravo, pois o \textit{checkpoint} mais atual era salvo no lugar do anterior na estrutura de controle do ataque. Assim não se tinha uma forma de verificar o status de ataque de cada escravo, pois o que recebia o maior índice "dominava" os \textit{checkpoints}.
-
-	\item A verificação para determinar se um trabalho havia terminado era baseada no índice recebido, se ele fosse igual ao último significava que havia terminado. Assim, quando o escravo que recebeu o maior índice terminava seu trabalho o mestre 
-equivocadamente verificava que o serviço tinha acabado e enviava a resposta ao cliente, porém os outros escravos que estavam trabalhando no
-mesmo ataque podiam não ter terminado a sua parte. Com isso, o mestre enviava uma resposta de um trabalho incompleto para o cliente.
-
-\end{itemize}
-
-A solução para resolver esse problema foi a criação de subataques para um ataque. Dessa forma, um ataque solicitado pelo cliente é dividido em vários subataques e cada escravo fica responsável por um, assim, ao enviar um checkpoint estará salvando em seu próprio subataque o andamento dos índices, fazendo com que o primeiro problema não ocorresse mais. Outro ponto, é que verificar se um trabalho terminou basta apenas que o mestre cheque se todos os subataques referentes àquele ataque foram terminados, isso garante que o mestre só irá enviar a resposta ao cliente quando todos os escravos tiverem terminado sua tarefa.
-
-Outro problema que surgiu durante o desenvolvimento do mestre foi com relação a concorrência no acesso de variáveis. Existiram
-algumas partes da estrutura que não estavam tendo sua execução serializada com o \textit{synchronized} de Java, e ao se adicionar vários clientes e escravos ocorreram exceções relacionados a concorrência. Um caso onde esse problema ocorreu foi quando o mestre ficava checando se um trabalho havia terminado para enviar a resposta ao cliente. Para realizar essa verificação o mestre ficava checando a todo o momento uma variável booleana que representava o \textit{status} do trabalho, se fosse falsa o trabalho não tinha terminado, caso contrário já tinha terminado. O problema era que quando o trabalho terminava e essa váriavel de \textit{status} ia ser modificada o mestre concorrentemente checava ela fazendo com que ocorresse exceção de acesso concorrente. Esse problema foi corrigido utilizando a opção \textit{wait} e \textit{notify} de Java que faz com que a \textit{thread} que verifica o \textit{status} do trabalho ficasse dormindo e quando o trabalho estivesse terminado ele era notificado e enviava a resposta para o cliente.
-
-\chapter{Interoperabilidade}
-A interoperabilidade do trabalho foi testada com os seguintes grupos:
-
-\begin{itemize}
-
-	\item Grupo: David Morosini e Gustavo Monjardim.
-	\item Grupo: André Barreto e Eric Santos.
-	\item Grupo: Eduardo Dalapicola e Gustavo Duarte.
-	\item Grupo: Eduardo Oliveira e Thiago Borges.
-
-\end{itemize}
-
-\section{Problemas Encontrados}
-
-Um problema que aconteceu durante um dos testes de interoperabilidade foi no uso de um roteador, quando todo mundo estava conectado à rede um dos grupos abria o mestre e os outros criavam escravos, porém percebeu-se que havia uma demora de cerca de 2 a 3 minutos para que o mestre recebesse a solicitação e registrasse o cliente. E mais, ao se criar um ataque havia uma demora muito grande para que os escravos recebessem a solicitação do mestre, isso fez com que fosse inviável o uso do roteador para a realização dos testes.
-
-Um outro problema que ocorreu foi que um grupo havia modificado a interface original adicionando um construtor com isso ocorria a exceção \textit{Unmarshalling Exception} que fazia com que não encontrasse as classes, pois em Java ao adicionar algum método a uma interface ele a considera uma nova versão diferente da original.
-
-Ocorreu também um problema relacionado aos índices do dicionário. O dicionário possui 80368 palavras e portanto seus índices variam de 0 a 80367. Nesse trabalho os índices eram percorridos através de um laço \textit{for} que cuja condição de parada
-era feita por um teste de menor que 80368. Porém um grupo havia implementado a checagem dos índices de uma forma diferente utilizando o menor ou igual na condição de parada. Com isso, ocorria uma exceção de \textit{IndexOutOfBoundsException} fazendo com que o escravo falhasse. Para corrigir esse problema foi adicionada uma verificação dos índices de forma que caso ocorresse a exceção ela era tratada e o escravo não falhava.
 
 \chapter{Análise de Desempenho} 
 Após a implementação do trabalho foram realizadas análises de desempenho com o objetivo de se conseguir observar se realmente
 há uma melhoria ao se utilizar sistemas distribuídos. As análises estão nas seções seguintes.
 
+
+
 \section{Máquinas e Equipamentos Utilizados}
-Para a realização das análises foram utilizados dois tipos de computadores:
 
-\begin{enumerate}
 
-	\item Para a análise de desempenho de paralelismo em uma única máquina com vários escravos foi utilizado um notebook com processador \textit{Intel Core i5-2410M CPU 2.30GHz x 4} e 6GB de memória RAM com o Sistema Operacional \textit{Linux Mint KDE 64-bit}.
 
-	\item Já para a análise de desempenho distribuído foram utilizados os computadores do laboratório de graduação (LabGrad) que possuem as seguintes configurações: processador \textit{AMD Athlon(tm) Dual Core Processor 5000B} com 4GB de memória RAM e o Sistema Operacional utilizado foi o \textit{Ubuntu 16.04.4 LTS}. A configuração de rede das máquinas era o padrão Ethernet 100Mbps.
 
-\end{enumerate}
+
+
+
+
+
+
+
+Para a análise de desempenho foram utilizados os computadores do laboratório de graduação (LabGrad) que possuem as seguintes configurações: processador \textit{AMD Athlon(tm) Dual Core Processor 5000B} com 4GB de memória RAM e o Sistema Operacional utilizado foi o \textit{Ubuntu 16.04.4 LTS}. A configuração de rede das máquinas era o padrão Ethernet 100Mbps.
 
 Inicialmente, a ideia era realizar todos os testes nas máquinas do LabGrad porém essa divisão dos testes foi realizada pois ambos os LabGrads estavam reservados para aulas, e quando não estavam os outros alunos da graduação estavam utilizando, fazendo com que a disponibilidade de tempo nos laboratórios fosse bem pequena. 
 
 Outra questão é que não seria possível testar o sistema em várias máquinas em casa já que só tinha disponível um computador, sendo assim, optei por fazer a análise de paralelismo no computador pessoal e deixar a análise de desempenho distribuído para ser realizada no LabGrad.
 
-\section{Desempenho de Paralelismo em uma Única Máquina}
+\section{Cenário A}
 
 As medições para essa análise foram obtidas utilizando o computador notebook pessoal. Durante as medições procurou-se deixar
 a máquina com apenas as aplicações rodando para evitar possíveis ruídos, mas é bom lembrar que existiam os processos em \textit{background} do SO. 
@@ -661,7 +581,7 @@ pequeno sua medição acaba ficando refém dos ruídos.
 \end{figure}
 
 
-\section{Desempenho Distribuído em Várias Máquinas}
+\section{Cenário B}
 
 As medições para essa análise foram obtidas utilizando os computadores do LabGrad. Vale destacar que até os testes para a 
 obtenção dos dados para 7 escravos o LabGrad estava com poucos alunos de graduação o que permitiu uma melhor medição dos tempos, porém ao se realizar a medição para 8 escravos, o LabGrad teve um problema de rede e quando foi resolvido haviam muitos alunos utilizando as máquinas, isso fez com que os dados obtidos para 8 escravos fossem prejudicados, porém mesmo com esse problema pode-se realizar uma análise do desempenho.
