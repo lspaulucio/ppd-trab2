@@ -175,7 +175,7 @@ public class MasterImpl implements Master {
         @Override
         public void run() {
             
-            long INDEX_DIVISION = 10000;
+            long INDEX_DIVISION = 500;
             long dictionarySize = Configurations.DICTIONARY_SIZE; 
             long indexDivision = INDEX_DIVISION;
             long initialIndex = 0; 

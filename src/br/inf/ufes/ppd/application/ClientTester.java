@@ -1,4 +1,4 @@
-package br.inf.ufes.ppd.tester;
+package br.inf.ufes.ppd.application;
 
 import br.inf.ufes.ppd.Guess;
 import br.inf.ufes.ppd.Master;
