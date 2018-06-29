@@ -289,7 +289,7 @@
 % ----------------------------------------------------------
 \chapter{Introdução} 
 
-Com o crescente desenvolvimento dos sistemas distribuídos nos últimos tempos surgiu a necessidade de serviços que independem de um acoplamento direto entre remetente e destinatário. Para que essa comunicação ocorra se faz necessário o uso de um intermediário, através dele é possível se obter duas características importantes: desacoplamento do espacial e desacoplamento do temporal.
+Com o crescente desenvolvimento dos sistemas distribuídos nos últimos tempos surgiu a necessidade de serviços que independem de um acoplamento direto entre remetente e destinatário. Para que essa comunicação aconteça, se faz necessário o uso de um intermediário. Através dele é possível se obter duas características importantes: desacoplamento espacial e desacoplamento temporal.
 
 O desacoplamento espacial permite que as entidades remetentes e destinatárias não precisam se conhecer. Isso permite que os desenvolvedores possam usar a tecnologia de desenvolvimento que acharem melhor. Como hoje existe uma gama enorme de ferramentas, essa propriedade fornece ao desenvolvedor um grau de liberdade imenso.
 
@@ -300,7 +300,8 @@ Todas essas características tornam a comunicação indireta uma ferramenta muit
 Os \textit{Web Services} permitem uma integração de sistemas e na troca de informações entre diferentes aplicações, permitindo que sistemas criados em plataformas totalmente diferentes sejam compatíveis. Para isso, a aplicação usa uma linguagem universal para se comunicar através de um intermediário, atualmente pode se citar o XML, JSON, CSV e etc.
 
 Esse trabalho tem por objetivo praticar programação paralela e distribuída usando a API Java JMS, além de 
-realizar análises de desempenho em um cluster de computadores. Ele consistirá na implementação de uma arquitetura mestre/escravo para realizar um ataque de dicionário em uma mensagem criptografada utilizando troca de mensagens.
+realizar análises de desempenho em um cluster de computadores. 
+Ele consistirá na implementação de uma arquitetura mestre/escravo para realizar um ataque de dicionário em uma mensagem criptografada utilizando troca de mensagens em duas filas.
 
 
 \chapter{Implementação} 
@@ -317,9 +318,6 @@ do código e das implementações de cada elemento. O trabalho é composto dos s
 
 	\item \textbf{br.inf.ufes.ppd.implementation:} Nesse pacote se encontram as implementações das interfaces e das 
 	funcionalidades do mestre e escravo. 
-	
-	\item \textbf{br.inf.ufes.ppd.tester:} No pacote \textit{tester} estão as aplicações criadas para obtenção automatizada
-	das 	métricas de desempenho que foram utilizadas para a análise efetuada ao final do trabalho.
 	
 	\item \textbf{br.inf.ufes.ppd.utils:} Por fim, nesse pacote estão as funcionalidades de criptografia e descriptografia e 
 	a de geração de dados em ".csv" para geração dos gráficos.
@@ -345,9 +343,9 @@ Nessa pasta se encontra a pasta raiz do pacote do trabalho, nesse caso a pasta "
 
 A aplicação cliente é a mesma implementada no 1º trabalho da disciplina e não foi alterada nenhuma parte do código. O programa cliente recebe como argumentos: o nome do arquivo criptografado, o trecho conhecido do texto original, um terceiro parâmetro que indica o tamanho do vetor de \textit{bytes} aleatório que será gerado em caso do arquivo criptografado não existir, e por último o dicionário de chaves.
 
-Assim, o cliente é responsável por localizar o mestre utilizando o \textit{Registry}(utilizando a funcionalidade de \textit{lookup}) e solicitar o serviço de ataque através do método \textit{attack}. Ao solicitar o serviço o cliente passa o arquivo criptografado e o trecho conhecido ficando bloqueado enquanto aguarda uma resposta do mestre.
+Assim, o cliente é responsável por localizar o mestre utilizando o \textit{Registry}(utilizando a funcionalidade de \textit{lookup}) e solicitar o serviço de ataque através do método \textit{attack}. Ao solicitar o serviço, o cliente passa o arquivo criptografado e o trecho conhecido, ficando bloqueado enquanto aguarda uma resposta do mestre.
 
-Caso o nome do arquivo fornecido como argumento para o programa cliente seja inválido ele fica responsável por gerar um vetor aleatório de bytes, cujo tamanho será igual ao 3º parâmetro fornecido ou, caso esse não exista, será usado um tamanho aleatório na faixa de 1Kb a 100Kb.
+Caso o nome do arquivo, fornecido como argumento para o programa cliente, seja inválido ele fica responsável por gerar um vetor aleatório de bytes, cujo tamanho será igual ao 3º parâmetro fornecido ou, caso esse não exista, será usado um tamanho aleatório na faixa de 1Kb a 100Kb.
 
 O comando utilizado para iniciar o cliente é:
 
@@ -359,9 +357,9 @@ O comando utilizado para iniciar o cliente é:
 \section{Escravo}
 O escravo recebe como parâmetros: o caminho para o arquivo de dicionário, o nome do escravo que será criado e endereço do \textit{host} onde está hospedado o \textit{Glassfish}. Caso alguns desses parâmetros não sejam fornecidos ele pega seus valores padrões existentes em um arquivo de configurações.
 
-Inicialmente, o escravo se conecta ao \textit{Glassfish} que está rodando no \textit{host} especificado para obter uma \textit{Connection Factory}, e assim, as filas onde serão colocadas os subataques e os \textit{guesses}. Após terminar essas tarefas de inicialização o escravo fica ocioso enquanto espera algum subataque ser adicionado na fila para que possa iniciar o processamento. 
+Inicialmente, o escravo se conecta ao \textit{Glassfish} que está rodando no \textit{host} especificado para obter uma \textit{Connection Factory}, e assim, as filas onde serão colocadas os subataques e os \textit{guesses}. Após terminar essas tarefas de inicialização, o escravo fica ocioso esperando algum subataque ser adicionado na fila, para que, assim, possa iniciar o processamento. 
 
-Cada escravo realiza apenas um trabalho por vez, ou seja, quando existe um trabalho na fila o escravo o retira para realizar o processamento e somente quando esse trabalho é finalizado ele verifica na fila novamente se existe um novo trabalho para poder executar. Durante o processamento caso algum \textit{Guess} seja encontrado o escravo o adiciona à fila de \textit{Guesses} para que o mestre possa processar e montar a resposta que será enviada ao cliente.
+Cada escravo realiza apenas um trabalho por vez, ou seja, quando existe um trabalho na fila o escravo o retira para realizar o processamento, e, somente quando esse trabalho é finalizado ele verifica na fila novamente se existe um novo trabalho para poder executar. Durante o processamento caso algum \textit{Guess} seja encontrado o escravo o adiciona à fila de \textit{Guesses} para que o mestre possa processar e montar a resposta que será enviada ao cliente.
 
 O comando para se iniciar um escravo é:
 
@@ -381,9 +379,9 @@ O comando para se iniciar um escravo é:
 O mestre recebe como parâmetro o endereço do \textit{registry} e do \textit{host} onde está o \textit{Glassfish}, caso eles não sejam fornecidos são utilizados os valores padrões existentes no arquivo de configurações.
 
 O mestre é a aplicação que fornece o serviço de \textit{attack} para um cliente. Quando esse serviço é solicitado
-ele cria vários subataques - o número de subataques depende de uma variável \textit{M} que determina o tamanho do intervalo dos índices de cada trabalho - adicionando os na respectiva fila para que os escravos possam pegar a tarefa para executar.
+ele cria vários subataques - o número de subataques depende de uma variável \textit{M} que determina o tamanho do intervalo dos índices de cada trabalho - adicionando-os na respectiva fila, para que, os escravos possam pegar a tarefa e executar.
 O mestre fica sempre monitorando a fila de \textit{Guesses}, através de uma \textit{thread}, para processar os resultados obtidos pelos escravos de forma que seja possível montar a resposta ao final do ataque para o cliente.
-Quando todos os subataques são finalizados pelos escravos o mestre envia a resposta para o cliente com os possíveis resultados encontrados durante os subataques.
+Quando todos os subataques são finalizados pelos escravos o mestre envia a resposta para o cliente com todos os resultados encontrados durante os subataques.
 
 O comando para se iniciar um escravo é:
 
@@ -391,7 +389,7 @@ O comando para se iniciar um escravo é:
 	java br.inf.ufes.ppd.application.MasterServer <registry> <host>
 \end{lstlisting}
 
-Da mesma forma que foi explicado para o escravo anteriormente, é necessário adicionar o arquivo \textit{<gf-client.jar>} ao \textit{classpath} utilizando o comando:
+Da mesma forma que foi explicado anteriormente para o escravo, é necessário adicionar o arquivo \textit{<gf-client.jar>} ao \textit{classpath} utilizando o comando:
 
 \begin{lstlisting}
 	java -cp .:../../glassfish5/glassfish/lib/gf-client.jar br.inf ...
@@ -408,19 +406,10 @@ O escravo sofreu alterações com a implementação feita no trabalho anterior. 
 
 Com as alterações exigidas para o mestre, sua implementação também ficou mais simples, já que não se fez necessário realizar o gerenciamento de escravos e recuperação de erros. Basicamente o mestre recebe uma requisição de ataque de um cliente e cria vários \textit{jobs} para esse ataque colocando-os na fila de subataques para que os escravos possam pegar. Quando uma requisição é recebida pelo mestre ele cria uma \textit{thread} para gerar os \textit{jobs}, isso permite que ele possa receber requisições em paralelo.
 
-Para a implementação do mestre foi criada a seguinte estrutura de dados:
-
-\begin{itemize}
-
-	\item \textbf{AttackControl:} Essa estrutura é responsável por possuir as informações de um ataque solicitado por um
-	cliente. Ele possui: a informação do tempo em que o ataque começou, possui uma variável que diz se o ataque está 
-	terminado, uma referência para a mensagem criptografada e para o trecho conhecido daquele ataque e por fim uma 
-	\textit{HashMap} com os respectivos subataques e o \textit{status} de cada um, indicando se o subataque já terminou ou 
-	não.
+Para a implementação do mestre foi criada uma estrutura de controle de ataque chamada \textit{AttackControl}.
+Essa estrutura é responsável por possuir as informações de um ataque solicitado por um cliente. Ele possui: a informação do tempo em que o ataque começou, possui uma variável que diz se o ataque está terminado, uma referência para a mensagem criptografada e para o trecho conhecido daquele ataque e por fim uma 	\textit{HashMap} com os respectivos subataques e o \textit{status} de cada um, indicando se o subataque já terminou ou não.
 	
-\end{itemize}
-
-Para acessar essas estruturas o mestre possui \textit{HashMaps}, que facilitam o acesso e localização das estruturas. 
+Para acessar as estruturas o mestre possui \textit{HashMaps}, que facilitam o acesso e localização das mesmas. 
 Essas \textit{HashMaps} são as seguintes:
 
 \begin{itemize}
@@ -457,7 +446,7 @@ Para a troca de mensagens entre o mestre-escravo e escravo-mestre foi utilizado 
 \end{itemize}
 
 \section{Decisões de Projeto}
-Durante a implementação do projeto algumas decisões tiveram que ser tomadas, elas serão discutidas a seguir.
+Durante a implementação do projeto algumas decisões tiveram que ser tomadas, elas estão discutidas a seguir.
 
 \begin{enumerate}
 
@@ -486,36 +475,20 @@ Outro problema que surgiu foi para limpar as filas durante os testes de implemen
 
 
 \chapter{Análise de Desempenho} 
-Após a implementação do trabalho foram realizadas análises de desempenho com o objetivo de se conseguir observar se realmente
-há uma melhoria ao se utilizar sistemas distribuídos. As análises estão nas seções seguintes.
-
-
 
 \section{Máquinas e Equipamentos Utilizados}
 
-
-
-
-
-
-
-
-
-
-
-Para a análise de desempenho foram utilizados os computadores do laboratório de graduação (LabGrad) que possuem as seguintes configurações: processador \textit{AMD Athlon(tm) Dual Core Processor 5000B} com 4GB de memória RAM e o Sistema Operacional utilizado foi o \textit{Ubuntu 16.04.4 LTS}. A configuração de rede das máquinas era o padrão Ethernet 100Mbps.
-
-Inicialmente, a ideia era realizar todos os testes nas máquinas do LabGrad porém essa divisão dos testes foi realizada pois ambos os LabGrads estavam reservados para aulas, e quando não estavam os outros alunos da graduação estavam utilizando, fazendo com que a disponibilidade de tempo nos laboratórios fosse bem pequena. 
-
-Outra questão é que não seria possível testar o sistema em várias máquinas em casa já que só tinha disponível um computador, sendo assim, optei por fazer a análise de paralelismo no computador pessoal e deixar a análise de desempenho distribuído para ser realizada no LabGrad.
+Para a análise de desempenho foram utilizados os computadores do laboratório de graduação (LabGrad I), que possuem as seguintes configurações: processador \textit{AMD Athlon(tm) Dual Core Processor 5000B} com 4GB de memória RAM e o Sistema Operacional utilizado foi o \textit{Ubuntu 16.04.4 LTS}. A configuração de rede das máquinas era o padrão Ethernet 100Mbps.
 
 \section{Cenário A}
 
-As medições para essa análise foram obtidas utilizando o computador notebook pessoal. Durante as medições procurou-se deixar
-a máquina com apenas as aplicações rodando para evitar possíveis ruídos, mas é bom lembrar que existiam os processos em \textit{background} do SO. 
+O cenário A consiste em 3 máquinas distintas, cada qual executando 4 aplicações de escravo, totalizando 12 escravos. A aplicação do mestre e do cliente foram executadas em uma outra máquina. Durante as medições procurou-se deixar a máquina com apenas as aplicações rodando para evitar possíveis ruídos, mas é bom lembrar que existiam os processos em \textit{background} do SO. 
 
-Para a medição dos dados foi criado uma aplicação cliente para gerar tamanhos aleatórios de vetor de 0 a 60Kb, sendo que os
+Para a medição dos dados foi criada uma aplicação cliente para gerar tamanhos aleatórios de vetor de 0 a 60Kb, sendo que os
 tamanhos foram espaçados de 5 em 5Kb.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 A Figura \ref{fig:cent:tempo_respostaXtamanho_msg} apresenta um gráfico com o tempo de resposta obtido com diferentes tamanhos de mensagem para diferentes números de escravos em uma mesma máquina. É bom observar que o caso onde existe apenas um escravo é a medição obtida com uma aplicação centralizada que realiza o ataque sozinha.
 
