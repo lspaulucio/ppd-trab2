@@ -478,162 +478,111 @@ Outro problema que surgiu foi para limpar as filas durante os testes de implemen
 
 \section{Máquinas e Equipamentos Utilizados}
 
-Para a análise de desempenho foram utilizados os computadores do laboratório de graduação (LabGrad I), que possuem as seguintes configurações: processador \textit{AMD Athlon(tm) Dual Core Processor 5000B} com 4GB de memória RAM e o Sistema Operacional utilizado foi o \textit{Ubuntu 16.04.4 LTS}. A configuração de rede das máquinas era o padrão Ethernet 100Mbps.
+Para a análise de desempenho foram utilizados os computadores do laboratório de graduação (LabGrad I), que possuem as seguintes configurações: processador \textit{AMD Athlon(tm) Dual Core Processor 5000B} com 4GB de memória RAM e o Sistema Operacional utilizado foi o \textit{Ubuntu 16.04.4 LTS}. A configuração de rede das máquinas era o padrão Ethernet 100Mbps. 
+
+Durante as medições procurou-se deixar a máquina com apenas as aplicações rodando para evitar possíveis ruídos, mas é bom lembrar que existiam os processos em \textit{background} do SO. Para a medição dos dados foi criada uma aplicação cliente para gerar tamanhos aleatórios de vetor de 0 a 50Kb, sendo que os tamanhos foram espaçados de 5 em 5Kb.
 
 \section{Cenário A}
 
-O cenário A consiste em 3 máquinas distintas, cada qual executando 4 aplicações de escravo, totalizando 12 escravos. A aplicação do mestre e do cliente foram executadas em uma outra máquina. Durante as medições procurou-se deixar a máquina com apenas as aplicações rodando para evitar possíveis ruídos, mas é bom lembrar que existiam os processos em \textit{background} do SO. 
+O cenário A consiste em 3 máquinas distintas, cada qual executando 4 aplicações de escravo, totalizando 12 escravos. A aplicação do mestre e do cliente foram executadas em uma outra máquina. 
 
-Para a medição dos dados foi criada uma aplicação cliente para gerar tamanhos aleatórios de vetor de 0 a 60Kb, sendo que os
-tamanhos foram espaçados de 5 em 5Kb.
+No dia dos testes para cenário A havia apenas um outro grupo realizando testes, e, dessa forma, não ocorreram muitos ruídos, diferentemente dos testes que serão mostrados para o cenário B.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-A Figura \ref{fig:cent:tempo_respostaXtamanho_msg} apresenta um gráfico com o tempo de resposta obtido com diferentes tamanhos de mensagem para diferentes números de escravos em uma mesma máquina. É bom observar que o caso onde existe apenas um escravo é a medição obtida com uma aplicação centralizada que realiza o ataque sozinha.
+A Figura \ref{fig:tempo_respostaXtamanho_msg_A} apresenta um gráfico com o tempo de resposta obtido com diferentes tamanhos de mensagem para o cenário A.
 
-Ao observar o gráfico percebe-se claramente que à medida que aumenta-se o número de escravos, ou seja, faz-se o paralelismo da 
-execução da tarefa(já que foi utilizado apenas um computador), o tempo de resposta diminui como imaginado, visto que ao
-realizar o paralelismo em um computador com mais de um \textit{core} de processamento espera-se que a tarefa seja executada
-em um tempo menor.
+Analisando o gráfico, percebe-se, que à medida que o parâmetro M aumenta, o tempo de resposta também aumenta. Isso pode ser explicado pois o parâmetro M se relaciona com a faixa de índices que um trabalho irá possuir, e, por isso, também se relaciona com o número de trabalhos que são criados. 
 
-Outro ponto interessante de se notar é o fato de que apesar de se aumentar o número de escravos a partir do momento em que se adiciona mais de 4 escravos o tempo de resposta não sofre muitas mudanças sendo aproximadamente o mesmo até 8 escravos. Isso
-pode ser explicado pelo fato de que como a máquina possui apenas 4 \textit{cores} de processamento, não faria muito sentido o desempenho aumentar muito ao se colocar mais escravos do que o número de \textit{cores}, podendo até piorar por causa do \textit{overhead} de escalonamento de processos e devido aos processos do SO que rodam em \textit{background}.
+Um valor muito alto para M tende a produzir um número pequeno de trabalhos, porém com um intervalo grande para ser percorrido, o que acaba tornando o ataque muito próximo de uma execução sequencial. Por exemplo, com um M igual a 40000 e um intervalo de índices varia de 0 a 80000, seriam gerados dois trabalhos, um de 0 a 40000, e outro de 40000 a 80000. Assim, apenas dois escravos poderiam estar trabalhando no ataque, enquanto os outros ficariam ociosos pois não teriam trabalhos na fila para executar. Dessa forma, o tempo de resposta tende a aumentar.
 
+Já para valores menores de M, são criados vários trabalhos com intervalos de busca pequenos. Com isso, vários escravos podem pegar os trabalhos da fila e executar, diminuindo a ociosidade. Isso faz com que o ataque seja executado mais rapidamente, e, por consequência, o tempo de resposta tende a diminuir.
 
-\begin{figure}[!htb]
-\centering
-\includegraphics[scale=0.65]{figuras/temporesposta_centralizado.png}
-\caption{Gráfico do Tempo de Resposta x Tamanho da Mensagem}
-\label{fig:cent:tempo_respostaXtamanho_msg}
-\end{figure}
+É possível notar também que os melhores tempos de resposta são obtidos com M de 5000 para baixo, e, ainda, que os tempos de resposta nessas faixas de M são muito próximas. 
 
-A Figura \ref{fig:cent:speedupXtamanho_msg} apresenta o gráfico com o \textit{Speed Up} como função do tamanho da mensagem para diferentes números de escravos. Para se calcular o \textit{Speed Up} foi utilizado como tempo de execução serial o obtido pela aplicação centralizada.
-
-Ao analisar o gráfico nota-se que à medida que o número de escravos aumenta o \textit{Speed Up} também vai aumentando, porém 
-a partir de 4 escravos pra cima o seu valor varia muito pouco. Como visto em sala de aula verifica-se que o \textit{Speed Up}
-obtido foi sublinear, o que era o esperado, pois segundo a Lei de Amdahl o maior \textit{Speed Up} que se consegue obter é o liner onde o \textit{Speed Up} é igual ao número de \textit{threads} de execução paralela, sendo que obter esse valor ótimo é
-impossível visto que sempre existirá uma parte do programa que tem que ser executado serialmente, no caso desse trabalho o 
-mestre é o que precisa executar algumas ações de forma serial.
+Apesar de no gráfico não ser possível de observar com clareza os tempos de resposta obtidos para os valores de M entre 50 e 400, por estarem sobrepostos, percebeu-se pelos testes que valores muito pequenos de M, abaixo de 300, possuíam um tempo de resposta maior. Isso pode ser explicado devido ao \textit{overhead} existente na criação, processamento e troca de mensagens pela rede.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[scale=0.55]{figuras/speedup_centralizado.png}
-\caption{Gráfico do Speed Up x Tamanho da Mensagem}
-\label{fig:cent:speedupXtamanho_msg}
+\includegraphics[scale=0.7]{figuras/A.png}
+\caption{Gráfico do Tempo de Resposta x Tamanho da Mensagem para o Cenário A}
+\label{fig:tempo_respostaXtamanho_msg_A}
 \end{figure}
 
-A Figura \ref{fig:cent:eficienciaXtamanho_msg} apresenta o gráfico com a eficiência em função do tamanho da mensagem para 
-diferentes números de escravos.
+%%%%%%%%%%%%
 
-Ao observar o gráfico percebe-se claramente que quanto mais escravos são adicionados menor é a eficiência. Isso é esperado
-visto que como observado na Figura \ref{fig:cent:speedupXtamanho_msg} à medida que aumenta-se o número de escravos o \textit{Speed Up} não se altera muito sendo o mesmo para mais do que 4 escravos com isso a eficiência tende a ser menor
-para um número maior de escravos.
+Através dos testes, percebeu-se que o melhor resultado obtido foi com M igual a 300. Foi feita uma comparação de desempenho entre o primeiro trabalho(rodando na mesma configuração de cenário) e o segundo trabalho com M igual a 300. O resultado está ilustrado na Figura \ref{fig:tempo_respostaXtamanho_msg_A_T1}.
 
-Um outro ponto a se destacar é que para 2 escravos e eficiência foi um pouco maior do que 1, isso é impossível pelo fato de
-que a maior eficiência possível de se obter é 1. Isso pode ter ocorrido devido a ruídos que podem ter ocasionado em erros na
-medição dos tempos.
+No primeiro trabalho, o intervalo de índices que cada escravo deve executar é calculada através da divisão do tamanho total dos índices pelo número de escravos registrados, no caso dessa configuração existem 12 escravos. 
+
+A primeira coisa a se notar é que o desempenho do segundo trabalho, com M igual a 300, é muito melhor do que o primeiro, chegando a ser aproximadamente 4 vezes mais rápido. Isso pode ser explicado, para o trabalho 2, pelo fato de que para esse valor de M são gerados vários pequenos trabalhos, aumentando o nível de paralelismo, e, assim, permitindo uma melhora no tempo de resposta. Já para o primeiro trabalho são produzidos exatamente 12 trabalhos, fazendo com que cada escravo tenha que processar 6670 índices aproximadamente.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[scale=0.55]{figuras/eficiencia_centralizado.png}
-\caption{Gráfico da Eficiência x Tamanho da Mensagem}
-\label{fig:cent:eficienciaXtamanho_msg}
+\includegraphics[scale=0.7]{figuras/A_T1.png}
+\caption{Gráfico do Tempo de Resposta x Tamanho da Mensagem comparando o melhor M com o 1º trabalho - Cenário A}
+\label{fig:tempo_respostaXtamanho_msg_A_T1}
 \end{figure}
-
-Por fim, a Figura \ref{fig:cent:overheadXtamanho_msg} apresenta as medições do \textit{overhead} obtidos. Pode-se notar que 
-o gráfico apresenta muita oscilação causada provavelmente por existirem processos do SO rodando em \textit{background}. Isso
-faz com que não forneça informações tão relevantes, como os processos rodam na mesma máquina o \textit{overhead} é muito
-pequeno sua medição acaba ficando refém dos ruídos.
-
-\begin{figure}[!htb]
-\centering
-\includegraphics[scale=0.65]{figuras/overhead_centralizado.png}
-\caption{Gráfico do Overhead x Tamanho da Mensagem}
-\label{fig:cent:overheadXtamanho_msg}
-\end{figure}
-
 
 \section{Cenário B}
+O cenário B, também consistia em 3 máquinas distintas, porém duas máquinas executavam 4 aplicações de escravo e uma executava 8, totalizando 16 escravos. A aplicação do mestre e do cliente também foram executadas em uma outra máquina. No dia dos testes do cenário B havia quatro grupos realizando testes, e, dessa forma, ocorreram algumas perturbações nos gráficos, porém elas não atrapalharam a realização das análises de desempenho.
 
-As medições para essa análise foram obtidas utilizando os computadores do LabGrad. Vale destacar que até os testes para a 
-obtenção dos dados para 7 escravos o LabGrad estava com poucos alunos de graduação o que permitiu uma melhor medição dos tempos, porém ao se realizar a medição para 8 escravos, o LabGrad teve um problema de rede e quando foi resolvido haviam muitos alunos utilizando as máquinas, isso fez com que os dados obtidos para 8 escravos fossem prejudicados, porém mesmo com esse problema pode-se realizar uma análise do desempenho.
+A Figura \ref{fig:tempo_respostaXtamanho_msg_B} apresenta o gráfico dos resultados obtidos para o cenário B com vários valores de M.
 
-Para a medição dos dados também foi usada a aplicação cliente de teste para gerar tamanhos aleatórios de vetor de 0 a 60Kb,
-sendo que os tamanhos foram espaçados de 5 em 5Kb.
+Observando o gráfico, percebe-se que da mesma forma que ocorreu para o cenário A, à medida que o parâmetro M aumenta, o tempo de resposta também aumenta. Apesar de terem ocorridos algumas perturbações durante os testes, nota-se que o desempenho do segundo trabalho no cenário B é muito próximo do obtido no cenário A, mesmo com um computador sobrecarregado com 8 escravos. 
 
-Para os testes foram utilizados 4 máquinas. Para os testes até 4 escravos cada máquina possuía rodando apenas 1 escravo, para 5 escravos até 8 foram sendo adicionados escravos em cada uma dessas 4 máquinas de modo que ao final cada uma tivesse apenas 2
-escravos rodando ao mesmo tempo. Essa estratégia foi usada pois cada computador possuía dois \textit{cores} de processamento.
+Isso já era esperado, visto que, nessa segunda implementação o escravo era capaz de realizar o controle de consumo dos trabalhos, já que um novo trabalho só era obtido quando o atual tivesse terminado. Assim, no computador que está muito sobrecarregado, a execução do trabalho irá demorar, porém, da mesma forma, a obtenção de um novo trabalho irá demorar, fazendo com que outros escravos que estejam disponíveis possam pegar o restante dos trabalho. Dessa forma, não ocorre perda significativa no desempenho.
 
-A Figura \ref{fig:dist:tempo_respostaXtamanho_msg} apresenta um gráfico com o tempo de resposta obtido com diferentes tamanhos de mensagem para diferentes números de escravos de forma distribuída. Destaca-se que o caso onde existe apenas um escravo é a medição foi obtida com uma aplicação centralizada que realizou o ataque sozinha em uma das máquinas.
+Nota-se que para valores de M grandes, acima de 5000, o tempo de resposta aumentou quando comparado ao cenário A, e, também, pode se perceber oscilações para esses valores. Isso pode ter ocorrido pelo fato de que haviam 4 grupos realizando os testes no laboratório, e, como os testes eram executados na mesma rede, para mensagens maiores, o \textit{overhead} de comunicação acabou aumentando.
 
-Ao observar o gráfico percebe-se claramente que à medida que aumenta-se o número de escravos, ou seja, faz-se a distribuição da tarefa entre as diferentes máquinas o tempo de resposta diminui como imaginado, como a tarefa será distribuída entre 
-diferentes máquinas cada uma com uma pequena parte da tarefa espera-se que o processamento de cada parte seja mais rápido.
-Destaca-se que o caso onde há apenas 1 escravo, foi medido rodando a mesma aplicação centralizada da análise anterior nas máquinas do LabGrad.
-
-Uma observação interessante de se notar é que diferentemente do caso anterior onde se analisou o desempenho de paralelismo após a utilização de 4 escravos o tempo de resposta foi basicamente o mesmo para até 8 escravos. Já nesse caso distribuído 
-nota-se que ao aumentar o número de escravos o tempo de resposta diminuiu para todos os escravos mesmo que a diferença entre 6 e 7 escravos seja pequena é possível observar uma diferença no tempo. Vale destacar novamente que para 8 escravos as medições foram prejudicadas pelo momento do teste e como não foi possível refazé-los eles apresentaram essa diferença. Mas acredita-se
-que caso os problemas citados não tivessem ocorrido o grafíco apresentaria uma melhora mesmo que pequena no tempo de resposta
-para o caso de 8 escravos.
+Os melhores resultados para os tempos de resposta foram obtidos com M de 1000 para baixo, sendo que para esses valores os resultados foram muito próximos. Da mesma forma que ocorreu para o cenário A, não foi possível observar com clareza os tempos de resposta obtidos para esses pequenos valores, por ficarem sobrepostos no gráfico. Porém, pelos testes realizados os melhores resultados foram obtidos com M igual a 400.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[scale=0.65]{figuras/temporesposta_distribuido.png}
-\caption{Gráfico do Tempo de Resposta x Tamanho da Mensagem}
-\label{fig:dist:tempo_respostaXtamanho_msg}
+\includegraphics[scale=0.7]{figuras/B.png}
+\caption{Gráfico do Tempo de Resposta x Tamanho da Mensagem para o Cenário B}
+\label{fig:tempo_respostaXtamanho_msg_B}
 \end{figure}
 
-A Figura \ref{fig:dist:speedupXtamanho_msg} apresenta o gráfico do \textit{Speed Up} em função do tamanho da mensagem para diferentes números de escravos. O tempo de execução serial utilizado para o cálculo foi o tempo de execução da aplicação centralizada nas máquinas do LabGrad.
+Também foi realizada uma comparação com a implementação do 1º trabalho na configuração do cenário B, o resultado está ilustrado na Figura \ref{fig:tempo_respostaXtamanho_msg_B_T1}.
 
-Ao analisar o gráfico nota-se que à medida que o número de escravos aumenta o \textit{Speed Up} também vai aumentando, mas diferentemente da análise anterior eles não se aproximam de um valor em comum à medida que o número de escravos aumenta, sendo bem distintos. Para o caso de 8 escravos ele se equipara ao caso de 4 escravos devido aos problemas que ocorreram durante as medições. 
-
-Como visto em sala de aula verifica-se que o \textit{Speed Up} obtido foi linear, o que inicialmente é estranho, já que 
-esse é o máximo \textit{speed up} teórico possível.
-
-Esse resultado pode ter sido obtido por alguns fatores:
-
-\begin{itemize}
-	\item Erros de medições dos tempos;
-	\item O algoritmo sequencial não é o melhor que se pode conseguir;
-	\item A lei de Amdahl considera que o caso serial é executado por um único processador, o que nesse caso não ocorre visto 
-	que as máquinas possuem dois \textit{cores} de processamento, então mesmo que ela execute a tarefa sozinha o SO irá 
-	dividi-lá entre os processadores.
-\end{itemize}
+É possível observar que o tempo de resposta da implementação do 2º trabalho é menor do que o 1º. Isso já era esperado visto que, existe uma máquina sobrecarregada executando 8 escravos. Na primeira implementação a divisão é feita igualmente entre todos os escravos, com isso, a máquina que possui 8 escravos recebe mais trabalhos do que as outras duas, nesse caso o dobro. Isso faz com que a máquina sobrecarregada demore ainda mais para executar os trabalhos, aumentando, assim, o tempo de resposta. 
+Já no segundo trabalho esse problema não ocorre devido ao controle de consumo que o escravo é capaz de realizar.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[scale=0.65]{figuras/speedup_distribuido.png}
-\caption{Gráfico do Speed Up x Tamanho da Mensagem}
-\label{fig:dist:speedupXtamanho_msg}
+\includegraphics[scale=0.7]{figuras/B_T1.png}
+\caption{Gráfico do Tempo de Resposta x Tamanho da Mensagem comparando o melhor M com o 1º trabalho - Cenário B}
+\label{fig:tempo_respostaXtamanho_msg_B_T1}
 \end{figure}
 
 
-A Figura \ref{fig:dist:eficienciaXtamanho_msg} apresenta a eficiência obtida para diferentes números de escravos. Percebe-se 
-que a eficiência foi aproximadamente 1 para todos os casos, exceto para o de 8 escravos devido aos problemas já citados.
+\section{Comparação entre Cenários}
 
-Percebe-se que a eficiência acaba oscilando para cima e para baixo de 1 isso pode ser ocasionado pelos mesmos problemas citados anteriormente para o \textit{Speed Up}. Com isso, considera-se aceitável os dados medidos já que eles não são muito
-maiores do que o valor máximo possível que é 1.
+A Figura \ref{fig:tempo_respostaXtamanho_msg_T2_AxB} apresenta uma comparação dos tempos de resposta obtidos para o segundo trabalho utilizando os dois cenários de testes e escolhendo-se o melhor M. Para o cenário A foi utilizado M igual a 300 e para o cenário B foi usado M igual a 400.
 
+Como já foi dito na seção anterior. É possível perceber que os cenários A e B possuíram resultados semelhantes.
+Mesmo com uma máquina sobrecarregada no cenário B, não houve um aumento do tempo de resposta. Isso já era esperado visto que nessa implementação ocorre o controle de consumo pelo escravo, dessa forma, a máquina mais sobrecarregada, executa menos trabalhos do que as outras, não compromentendo muito o tempo de resposta.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[scale=0.65]{figuras/eficiencia_distribuido.png}
-\caption{Gráfico da Eficiência x Tamanho da Mensagem}
-\label{fig:dist:eficienciaXtamanho_msg}
+\includegraphics[scale=0.7]{figuras/T2_AxB.png}
+\caption{Gráfico do Tempo de Resposta x Tamanho da Mensagem para o melhor M em Diferentes Cenários}
+\label{fig:tempo_respostaXtamanho_msg_T2_AxB}
 \end{figure}
 
-A Figura \ref{fig:dist:overheadXtamanho_msg} apresenta o \textit{overhead} medido para diferentes números de escravos. 
+A Figura \ref{fig:tempo_respostaXtamanho_msg_T1_AxB} apresenta uma comparação dos tempos de resposta obtidos para o primeiro trabalho utilizando os dois cenários de testes.
 
-Nesse caso observa-se uma oscilação ocasionada por ruídos da rede, mas mesmo com esse problema é possível verificar que à
-medida que se aumenta o número de escravos o \textit{overhead} aumenta. O que é algo esperado visto que torna-se necessário 
-enviar \textit{bytes} de dados para diferentes máquinas na rede.
+Nesse caso, já é possível perceber que no cenário B, onde existe uma sobrecarga em uma máquina, o tempo de resposta é maior do quando comparado ao cenário A. Como no primeiro trabalho não havia controle de consumo, a divisão era feita de forma igual entre os diversos escravos. Assim, a máquina sobrecarregada demorava para executar os trabalhos, fazendo com que o tempo de resposta aumentasse.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[scale=0.65]{figuras/overhead_distribuido.png}
-\caption{Gráfico do Overhead x Tamanho da Mensagem}
-\label{fig:dist:overheadXtamanho_msg}
+\includegraphics[scale=0.7]{figuras/T1_AxB.png}
+\caption{Gráfico do Tempo de Resposta x Tamanho da Mensagem para o 1º trabalho em Diferentes Cenários}
+\label{fig:tempo_respostaXtamanho_msg_T1_AxB}
 \end{figure}
+
 
 % Conclusão
 % ---

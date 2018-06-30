@@ -9,6 +9,7 @@ all: compilaDoc
 compilaDoc:
 	@echo Generating pdf archive
 	@pdflatex $(PDFNAME) > /dev/null
+	@pdflatex $(PDFNAME) > /dev/null
 	@echo Done
 	
 clean:
