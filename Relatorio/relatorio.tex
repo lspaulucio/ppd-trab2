@@ -588,12 +588,19 @@ Nesse caso, já é possível perceber que no cenário B, onde existe uma sobreca
 % ---
 \chapter{Conclusão}
 
-Ao final desse trabalho é possível notar que um sistema distribuído é uma ferramenta muito poderosa pois permite aproveitar recursos de diferentes equipamentos para se executar uma tarefa em comum, de forma que com a distribuição do serviço entre as máquinas é consegue-se uma melhoria significativa no tempo de resposta. 
+Ao final do trabalho, foi possível perceber as vantagens de se utilizar troca de mensagens em uma aplicação distribuída. 
 
-Através das análises realizadas foi possível verificar graficamente as vantagens de se realizar tarefas de forma paralela e/ou distribuída. Com essas análises também foi possível verificar alguns pontos interessantes, como o \textit{speed up} linear obtido na análise de desempenho distribuída, que é algo impossível de se obter e que pode ter sido causado pelos problemas citados, mas principalmente pelo fato de que a Lei de Amdahl considera o caso serial como sendo executado por um único processador, o que não ocorreu nesses casos visto que as máquinas possuíam mais de um \textit{core} de processamento.
+Os resultados obtidos mostraram que mesmo em um cenário onde uma máquina está sobrecarregada o tempo de resposta não é muito afetado devido ao controle de fluxo proporcionado por esse tipo de implementação. Diferentemente, no primeiro trabalho, isso não ocorre, e assim, em um cenário onde há uma sobrecarga em uma máquina, o tempo de resposta é afetado consideravelmente.
 
-Outro ponto importante e que foi possível notar durante a implementação desse trabalho é a complexidade de funcionamento que existe na máquina responsável por realizar todo o gerenciamento, nesse caso representada pelo mestre. Ele tem que lidar: com o controle de máquinas ativas, com a distribuição das tarefas, com o controle do status das tarefas, com o controle de concorrência, redistribuição de tarefas, entre outros. Além de todas essas tarefas ele ainda tem que cuidar do acesso
-concorrente à variáveis de controle, que é um grande problema ao se trabalhar com muitas \textit{threads}, assim, percebe-se a necessidade que sempre vai existir para que algum pedaço do programa não seja paralelizável.
+Algumas vantagens puderam ser notadas nesse segundo trabalho ao se utilizar troca de mensagens. A primeira é o desacoplamento espacial obtido, onde as entidades, nesse caso mestre e escravo, não precisavam conhecer umas as outras.
+
+Outra vantagem é o desacoplamento temporal, que permite ao escravos poderem chegar e sair sem alterar o funcionamento do sistema. Isso fez com que a interface de \textit{SlaveManager} pudesse ser completamente removida, visto que, o gerenciamento de escravos não era mais necessário. 
+
+Outro ponto interessante que pode se destacar é a simplicidade de implementação do mestre para esse segundo trabalho, quando comparado ao primeiro. Devido ao desacoplamento temporal e espacial, todos os serviços relacionados ao gerenciamento dos escravos e os serviços de \textit{rebind} e checkpoint puderam ser removidos.
+
+Apesar das vantagens citadas, existe um ponto negativo que pode ser notado ao se utilizar esse tipo de solução. Como a comunicação realizada de forma indireta, o mestre não possui informação nenhuma sobre a existência ou não de escravos. Dessa forma, caso ele receba uma requisição de um cliente, a única coisa que ele irá fazer é criar os subataques e esperar, até que todos estejam terminados para enviar uma resposta ao cliente. No primeiro trabalho, o mestre possuía uma lista com os escravos ativos, e caso, ele recebesse uma solicitação de ataque ele poderia verificar se essa lista estava vazia ou não, caso estivesse, poderia traçar alguma estratégia para finalizar o ataque, seja lançando uma exceção para o cliente ou realizando por si mesmo o ataque.
+
+
 
 
 % ----------------------------------------------------------
