@@ -478,7 +478,7 @@ Outro problema que surgiu foi para limpar as filas durante os testes de implemen
 
 \section{Máquinas e Equipamentos Utilizados}
 
-Para a análise de desempenho foram utilizados os computadores do laboratório de graduação (LabGrad I), que possuem as seguintes configurações: processador \textit{AMD Athlon(tm) Dual Core Processor 5000B} com 4GB de memória RAM e o Sistema Operacional utilizado foi o \textit{Ubuntu 16.04.4 LTS}. A configuração de rede das máquinas era o padrão Ethernet 100Mbps. 
+Para a análise de desempenho foram utilizados os computadores do laboratório de graduação (LabGrad I), que possuem as seguintes configurações: processador \textit{Intel(R) Core(TM) i5-2400 CPU 3.10GHz} com 4GB de memória RAM e o Sistema Operacional utilizado foi o \textit{Ubuntu 16.04.4 LTS}. A configuração de rede das máquinas era o padrão Ethernet 100Mbps. 
 
 Durante as medições procurou-se deixar a máquina com apenas as aplicações rodando para evitar possíveis ruídos, mas é bom lembrar que existiam os processos em \textit{background} do SO. Para a medição dos dados foi criada uma aplicação cliente para gerar tamanhos aleatórios de vetor de 0 a 50Kb, sendo que os tamanhos foram espaçados de 5 em 5Kb.
 
@@ -514,9 +514,9 @@ Apesar de no gráfico não ser possível de observar com clareza os tempos de re
 
 Através dos testes, percebeu-se que o melhor resultado obtido foi com M igual a 300. Foi feita uma comparação de desempenho entre o primeiro trabalho(rodando na mesma configuração de cenário) e o segundo trabalho com M igual a 300. O resultado está ilustrado na Figura \ref{fig:tempo_respostaXtamanho_msg_A_T1}.
 
-No primeiro trabalho, o intervalo de índices que cada escravo deve executar é calculada através da divisão do tamanho total dos índices pelo número de escravos registrados, no caso dessa configuração existem 12 escravos. 
+No primeiro trabalho, o intervalo de índices que cada escravo deve executar era calculado através da divisão do tamanho total dos índices pelo número de escravos registrados. Assim, no caso dessa configuração, existiam 12 escravos, onde 4 aplicações rodavam em 3 máquinas. Dessa forma, são criados 12 tarefas com o intervalo de índices de aproximadamente 6667.
 
-A primeira coisa a se notar é que o desempenho do segundo trabalho, com M igual a 300, é muito melhor do que o primeiro, chegando a ser aproximadamente 4 vezes mais rápido. Isso pode ser explicado, para o trabalho 2, pelo fato de que para esse valor de M são gerados vários pequenos trabalhos, aumentando o nível de paralelismo, e, assim, permitindo uma melhora no tempo de resposta. Já para o primeiro trabalho são produzidos exatamente 12 trabalhos, fazendo com que cada escravo tenha que processar 6670 índices aproximadamente.
+Observando o gráfico, percebe-se que a implementação do primeiro trabalho conseguiu um tempo de resposta um pouco melhor do que a do segundo trabalho com M valendo 300. Isso pode ser explicado pelo aumento do \textit{overhead} causado principalmente: pela adição de um intermediário ao sistema, pelo processamento na criação de todas as mensagens referentes aos subataques e o processamento extra nos escravos que precisavam desempacotar as mensagens para poderem obter os dados dos subataques e na criação de \textit{guesses} para enviar de volta ao mestre.
 
 \begin{figure}[!htb]
 \centering
@@ -547,8 +547,7 @@ Os melhores resultados para os tempos de resposta foram obtidos com M de 1000 pa
 
 Também foi realizada uma comparação com a implementação do 1º trabalho na configuração do cenário B, o resultado está ilustrado na Figura \ref{fig:tempo_respostaXtamanho_msg_B_T1}.
 
-É possível observar que o tempo de resposta da implementação do 2º trabalho é menor do que o 1º. Isso já era esperado visto que, existe uma máquina sobrecarregada executando 8 escravos. Na primeira implementação a divisão é feita igualmente entre todos os escravos, com isso, a máquina que possui 8 escravos recebe mais trabalhos do que as outras duas, nesse caso o dobro. Isso faz com que a máquina sobrecarregada demore ainda mais para executar os trabalhos, aumentando, assim, o tempo de resposta. 
-Já no segundo trabalho esse problema não ocorre devido ao controle de consumo que o escravo é capaz de realizar.
+É possível observar que o tempo de resposta da implementação do 2º trabalho é menor do que o 1º. Isso já era esperado visto que, existe uma máquina sobrecarregada executando 8 escravos. Na primeira implementação a divisão é feita igualmente entre todos os escravos, com isso, a máquina que possui 8 escravos recebe mais trabalhos do que as outras duas, nesse caso o dobro. Isso faz com que a máquina sobrecarregada demore ainda mais para executar os trabalhos, aumentando, assim, o tempo de resposta. Nesse caso, essa máquina não tem o controle sobre as tarefas que recebe. O mestre é que faz a divisão e envia para cada escravo, sendo que, o mestre também não possui informação alguma sobre o estado da máquina onde está o escravo, ele parte do príncipio que todas estão disponíveis e podem realizar a mesma quantidade de trabalho. Já no segundo trabalho esse problema não ocorre devido ao controle de consumo que o escravo é capaz de realizar, visto que é ele que "decide" quando pegar uma tarefa da fila.
 
 \begin{figure}[!htb]
 \centering
@@ -574,7 +573,7 @@ Mesmo com uma máquina sobrecarregada no cenário B, não houve um aumento do te
 
 A Figura \ref{fig:tempo_respostaXtamanho_msg_T1_AxB} apresenta uma comparação dos tempos de resposta obtidos para o primeiro trabalho utilizando os dois cenários de testes.
 
-Nesse caso, já é possível perceber que no cenário B, onde existe uma sobrecarga em uma máquina, o tempo de resposta é maior do quando comparado ao cenário A. Como no primeiro trabalho não havia controle de consumo, a divisão era feita de forma igual entre os diversos escravos. Assim, a máquina sobrecarregada demorava para executar os trabalhos, fazendo com que o tempo de resposta aumentasse.
+Nesse caso, já é possível perceber que no cenário B, onde existe uma sobrecarga em uma máquina, o tempo de resposta é maior do que quando comparado ao cenário A. Como no primeiro trabalho não havia controle de consumo, a divisão era feita de forma igual entre os diversos escravos. Assim, a máquina sobrecarregada demorava para executar os trabalhos, fazendo com que o tempo de resposta aumentasse.
 
 \begin{figure}[!htb]
 \centering
@@ -594,9 +593,9 @@ Os resultados obtidos mostraram que mesmo em um cenário onde uma máquina está
 
 Algumas vantagens puderam ser notadas nesse segundo trabalho ao se utilizar troca de mensagens. A primeira é o desacoplamento espacial obtido, onde as entidades, nesse caso mestre e escravo, não precisavam conhecer umas as outras.
 
-Outra vantagem é o desacoplamento temporal, que permite ao escravos poderem chegar e sair sem alterar o funcionamento do sistema. Isso fez com que a interface de \textit{SlaveManager} pudesse ser completamente removida, visto que, o gerenciamento de escravos não era mais necessário. 
+Outra vantagem é o desacoplamento temporal, que permite ao escravos poderem chegar e sair sem alterar o funcionamento do sistema. Isso fez com que a interface de \textit{SlaveManager} pudesse ser completamente removida, visto que, o gerenciamento de escravos não era mais necessário. Além de permitir que novos escravos pudessem ser adicionados e removidos de forma bem mais simples, sem alterar o funcionamento do resto do sistema.
 
-Outro ponto interessante que pode se destacar é a simplicidade de implementação do mestre para esse segundo trabalho, quando comparado ao primeiro. Devido ao desacoplamento temporal e espacial, todos os serviços relacionados ao gerenciamento dos escravos e os serviços de \textit{rebind} e checkpoint puderam ser removidos.
+Outro ponto interessante que pode se destacar é a simplicidade de implementação do mestre para esse segundo trabalho quando comparado ao primeiro. Devido ao desacoplamento temporal e espacial, todos os serviços relacionados ao gerenciamento dos escravos e os serviços de \textit{rebind} e checkpoint puderam ser removidos.
 
 Apesar das vantagens citadas, existe um ponto negativo que pode ser notado ao se utilizar esse tipo de solução. Como a comunicação realizada de forma indireta, o mestre não possui informação nenhuma sobre a existência ou não de escravos. Dessa forma, caso ele receba uma requisição de um cliente, a única coisa que ele irá fazer é criar os subataques e esperar, até que todos estejam terminados para enviar uma resposta ao cliente. No primeiro trabalho, o mestre possuía uma lista com os escravos ativos, e caso, ele recebesse uma solicitação de ataque ele poderia verificar se essa lista estava vazia ou não, caso estivesse, poderia traçar alguma estratégia para finalizar o ataque, seja lançando uma exceção para o cliente ou realizando por si mesmo o ataque.
 
